@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>خطتي الغذائية</title>
+</head>
+<body>
+    <h1>خطط التغذية بتاعتي</h1>
+
+    {% for plan in plans %}
+        <h2>{{ plan.title }}</h2>
+        <ul>
+            {% for meal in plan.meals.all %}
+                <li>
+                    {{ meal.name }} — {{ meal.calories }} kcal
+                    (P: {{ meal.protein }}g, C: {{ meal.carbs }}g, F: {{ meal.fats }}g)
+                    {% if meal.notes %} — {{ meal.notes }}{% endif %}
+                </li>
+            {% empty %}
+                <li>لا يوجد وجبات في الخطة دي لسه</li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <p>لسه معندكش خطة تغذية. تواصل مع مدربك.</p>
+    {% endfor %}
+</body>
+</html>

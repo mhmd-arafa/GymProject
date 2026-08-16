@@ -21,7 +21,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("dashboard/", include("accounts.urls")),
     path("workouts/", include("workouts.urls")),
+    path("nutrition/", include("nutrition.urls")),
 ]
-
-path("dashboard/", include("accounts.urls")),
-path("workouts/", include("workouts.urls")),
