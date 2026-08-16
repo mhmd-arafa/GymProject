@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إضافة تمارين</title>
+</head>
+<body>
+    <h1>تمارين يوم: {{ object.day_name }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ exercise_formset.management_form }}
+
+        {% for exercise_form in exercise_formset %}
+            <div>{{ exercise_form.as_p }}</div>
+        {% endfor %}
+
+        <button type="submit">حفظ التمارين</button>
+    </form>
+</body>
+</html>

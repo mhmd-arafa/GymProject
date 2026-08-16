@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>العملاء</title>
+</head>
+<body>
+    <h1>قائمة العملاء</h1>
+
+    <ul>
+        {% for client in clients %}
+            <li>
+                <a href="{% url 'client-detail' client.pk %}">{{ client.username }}</a> - {{ client.email }}
+            </li>
+        {% empty %}
+            <li>لا يوجد عملاء حالياً</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

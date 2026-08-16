@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل الدخول</title>
+</head>
+<body>
+    <h1>تسجيل الدخول</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">دخول</button>
+    </form>
+
+    <p>معندكش حساب؟ <a href="{% url 'register' %}">سجّل دلوقتي</a></p>
+</body>
+</html>
