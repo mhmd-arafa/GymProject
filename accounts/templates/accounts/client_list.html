@@ -1,20 +1,66 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>العملاء</title>
-</head>
-<body>
-    <h1>قائمة العملاء</h1>
+{% extends 'base.html' %}
 
-    <ul>
-        {% for client in clients %}
-            <li>
-                <a href="{% url 'client-detail' client.pk %}">{{ client.username }}</a> - {{ client.email }}
-            </li>
-        {% empty %}
-            <li>لا يوجد عملاء حالياً</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% block title %}إدارة العملاء — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">👥 قائمة العملاء والمتدربين</h1>
+        <p class="page-subtitle">إدارة وتصفح المشتركين والاطلاع على خططهم ومتابعاتهم</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="{% url 'workout-plan-add' %}" class="btn btn-cyan btn-sm">🏋️‍♂️ + خطة تمرين</a>
+        <a href="{% url 'nutrition-plan-add' %}" class="btn btn-primary btn-sm">🥗 + خطة تغذية</a>
+        <a href="{% url 'subscription-list' %}" class="btn btn-secondary btn-sm">💳 إدارة الاشتراكات</a>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% if clients %}
+        <div class="table-container" style="border: none; border-radius: 0;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>اسم المتدرب</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>خطط التمارين</th>
+                        <th>خطط الدايت</th>
+                        <th>سجلات التقدم</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'client-detail' client.pk %}" style="font-weight: 700; color: var(--text-primary);">
+                                    👤 {{ client.username }}
+                                </a>
+                            </td>
+                            <td style="color: var(--text-secondary);">{{ client.email|default:"غير مسجل" }}</td>
+                            <td>
+                                <span class="badge badge-muted">{{ client.workout_plans.count }} خطط</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-muted">{{ client.nutrition_plans.count }} خطط</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-muted">{{ client.progress_logs.count }} تسجيلات</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'client-detail' client.pk %}" class="btn btn-secondary btn-sm">
+                                    عرض الملف الكامل 🔍
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="padding: 3rem 1.5rem; text-align: center;">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">لا يوجد عملاء مسجلين حالياً في المنصة.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

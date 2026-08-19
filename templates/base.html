@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GymCoach Pro — منصة التدريب والتغذية{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% if user.is_authenticated %}{% if user.role == 'ADMIN' %}{% url 'client-list' %}{% else %}{% url 'client-home' %}{% endif %}{% else %}/{% endif %}" class="brand-logo">
+                ⚡ <span>GymCoach</span> Pro
+            </a>
+
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    {% if user.role == 'ADMIN' %}
+                        <li><a href="{% url 'client-list' %}" class="nav-link">👥 العملاء</a></li>
+                        <li><a href="{% url 'subscription-list' %}" class="nav-link">💳 الاشتراكات</a></li>
+                        <li><a href="{% url 'workout-plan-add' %}" class="nav-link">🏋️‍♂️ إضافة تمرين</a></li>
+                        <li><a href="{% url 'nutrition-plan-add' %}" class="nav-link">🥗 إضافة دايت</a></li>
+                    {% else %}
+                        <li><a href="{% url 'client-home' %}" class="nav-link">🏠 الرئيسية</a></li>
+                        <li><a href="{% url 'my-workout-plan' %}" class="nav-link">🏋️‍♂️ تماريني</a></li>
+                        <li><a href="{% url 'my-nutrition-plan' %}" class="nav-link">🥗 نظامي الغذائي</a></li>
+                        <li><a href="{% url 'my-progress' %}" class="nav-link">📈 تقدمي</a></li>
+                        <li><a href="{% url 'my-subscription' %}" class="nav-link">💳 اشتراكي</a></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="/" class="nav-link">الرئيسية</a></li>
+                    <li><a href="/#features" class="nav-link">المميزات</a></li>
+                    <li><a href="/#pricing" class="nav-link">الباقات</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="nav-user">
+                {% if user.is_authenticated %}
+                    <div class="user-chip">
+                        <span>👤 {{ user.username }}</span>
+                        <span class="badge {% if user.role == 'ADMIN' %}badge-role{% else %}badge-active{% endif %}">
+                            {% if user.role == 'ADMIN' %}المدرب (Admin){% else %}مشترك{% endif %}
+                        </span>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}" style="margin: 0; display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary btn-sm">خروج</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">تسجيل الدخول</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-sm">حساب جديد</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% if messages %}
+            <div style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                    <div class="card" style="border-left: 4px solid var(--accent-green); margin-bottom: 0.5rem; padding: 0.75rem 1rem;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>جميع الحقوق محفوظة © {% now "Y" %} — <strong>GymCoach Pro</strong> المنصة التدريبية المخصصة</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

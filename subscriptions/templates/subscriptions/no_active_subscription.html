@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}تنبيه: الاشتراك غير نشط — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 4rem auto; text-align: center;">
+    <div class="card" style="border-color: var(--accent-amber); box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🔒</div>
+        <h1 style="font-size: 1.6rem; margin-bottom: 0.75rem;">عفواً، لا يمكنك الوصول لهذه الصفحة</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1rem;">
+            يتطلب عرض خطط التمارين والتغذية وتتبع الوزن وجود اشتراك نشط وساري المفعول.
+            يرجى التواصل مع المدرب أو طلب تجديد اشتراكك لتفعيل الوصول إلى خططك الشخصية.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a href="{% url 'my-subscription' %}" class="btn btn-primary btn-lg btn-block">
+                💳 عرض حالة اشتراكي / طلب تجديد
+            </a>
+            <a href="{% url 'client-home' %}" class="btn btn-secondary btn-block">
+                🏠 العودة للرئيسية
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

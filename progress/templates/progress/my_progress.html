@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}سجل تطور جسمي ووزني — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">📈 سجل تطور الوزن والصور</h1>
+        <p class="page-subtitle">تابع تغير وزنك وقارن صورك عبر الزمن</p>
+    </div>
+    <div>
+        <a href="{% url 'progress-add' %}" class="btn btn-primary btn-sm">+ تسجيل قياس وصورة جديدة</a>
+    </div>
+</div>
+
+{% if logs %}
+    <div class="grid-3" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-icon">⚖️</div>
+            <div>
+                <div class="stat-val">{{ start_weight }} كجم</div>
+                <div class="stat-label">وزن البداية</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.25);">📊</div>
+            <div>
+                <div class="stat-val">{{ latest_weight }} كجم</div>
+                <div class="stat-label">الوزن الحالي</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="{% if weight_diff < 0 %}background: rgba(16, 185, 129, 0.12); color: var(--accent-green);{% elif weight_diff > 0 %}background: rgba(59, 130, 246, 0.12); color: #60a5fa;{% else %}background: rgba(100, 116, 139, 0.12); color: var(--text-secondary);{% endif %}">
+                {% if weight_diff < 0 %}📉{% elif weight_diff > 0 %}📈{% else %}➖{% endif %}
+            </div>
+            <div>
+                <div class="stat-val">
+                    {% if weight_diff > 0 %}+{% endif %}{{ weight_diff }} كجم
+                </div>
+                <div class="stat-label">
+                    {% if weight_diff > 0 %}زيادة{% elif weight_diff < 0 %}نزول{% else %}ثابت{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="font-size: 1.3rem; margin-bottom: 1.25rem; color: var(--text-secondary);">📋 السجلات السابقة ({{ logs|length }})</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        {% for log in logs %}
+            <div class="{% if log.photo %}progress-card{% else %}card{% endif %}">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                        <h3 style="font-size: 1.1rem; color: var(--text-primary);">📅 {{ log.date|date:"Y-m-d" }}</h3>
+                        <span class="badge badge-active" style="font-size: 0.9rem;">⚖️ {{ log.weight }} كجم</span>
+                    </div>
+                    {% if log.notes %}
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">💬 {{ log.notes }}</p>
+                    {% endif %}
+                </div>
+                {% if log.photo %}
+                    <div class="progress-img-wrapper">
+                        <a href="{{ log.photo.url }}" target="_blank">
+                            <img src="{{ log.photo.url }}" alt="صورة تقدم {{ log.date|date:'Y-m-d' }}" />
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+        <h2 style="font-size: 1.4rem; margin-bottom: 0.5rem;">لم تسجل أي قياسات حتى الآن</h2>
+        <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+            اضغط على الزر أعلاه لتسجيل وزنك وصورتك الأولى ومتابعة تطورك مع الكوتش!
+        </p>
+        <a href="{% url 'progress-add' %}" class="btn btn-primary btn-lg">+ تسجيل قياس جديد</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}تسجيل قياس جديد — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 2rem auto;">
+    <div class="card form-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📸</div>
+            <h1 class="card-title" style="font-size: 1.6rem;">تسجيل قياس وصورة جديدة</h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">سجل وزنك وصورتك لمتابعة تطورك مع المدرب بانتظام</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    {{ field }}
+                    {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+                    {% if field.errors %}<div style="color: var(--accent-rose); font-size: 0.85rem; margin-top: 0.25rem;">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">حفظ القياس</button>
+                <a href="{% url 'my-progress' %}" class="btn btn-secondary btn-lg">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

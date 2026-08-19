@@ -2,11 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
 from accounts.mixins import AdminRequiredMixin
+from subscriptions.mixins import ActiveSubscriptionRequiredMixin
 from .models import NutritionPlan
 from .forms import NutritionPlanForm, MealFormSet
 
 
-class MyNutritionPlansView(LoginRequiredMixin, ListView):
+class MyNutritionPlansView(ActiveSubscriptionRequiredMixin, ListView):
     model = NutritionPlan
     template_name = "nutrition/my_nutrition.html"
     context_object_name = "plans"

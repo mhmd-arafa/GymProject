@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}حالة اشتراكي — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">💳 تفاصيل وحالة الاشتراك</h1>
+        <p class="page-subtitle">متابعة صلاحية باقتك التدريبية وسجل الاشتراكات السابقة</p>
+    </div>
+    <div>
+        <a href="{% url 'subscription-request' %}" class="btn btn-primary btn-sm">+ طلب اشتراك جديد / تجديد</a>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2.5rem; {% if active_subscription %}border-color: var(--accent-green); box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);{% endif %}">
+    {% if active_subscription %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+                <span class="badge badge-active" style="font-size: 0.95rem; padding: 0.35rem 0.9rem;">اشتراكك الحالي: نشط ✅</span>
+                <h2 style="font-size: 1.5rem; margin-top: 0.5rem;">{{ active_subscription.get_plan_type_display }}</h2>
+            </div>
+            <div style="font-size: 2.5rem;">🎯</div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 1.5rem;">
+            <div style="background: var(--bg-input); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">تاريخ البداية:</span>
+                <p style="font-weight: 700; font-size: 1.1rem; margin-top: 0.25rem;">{{ active_subscription.start_date|default:"غير محدد" }}</p>
+            </div>
+            <div style="background: var(--bg-input); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">تاريخ الانتهاء:</span>
+                <p style="font-weight: 700; font-size: 1.1rem; margin-top: 0.25rem; color: var(--accent-cyan);">{{ active_subscription.end_date|default:"غير محدد" }}</p>
+            </div>
+            <div style="background: var(--bg-input); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">تاريخ الطلب:</span>
+                <p style="font-weight: 700; font-size: 1.1rem; margin-top: 0.25rem;">{{ active_subscription.created_at|date:"Y-m-d" }}</p>
+            </div>
+        </div>
+
+        {% if active_subscription.notes %}
+            <div style="background: var(--bg-input); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">ملاحظات المدرب:</strong>
+                <p style="margin: 0.25rem 0 0;">{{ active_subscription.notes }}</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <div style="text-align: center; padding: 2rem 1rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.75rem;">⚠️</div>
+            <h2 style="font-size: 1.4rem; color: var(--accent-amber); margin-bottom: 0.5rem;">لا يوجد اشتراك نشط حالياً</h2>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+                ليس لديك اشتراك نشط في الوقت الحالي للوصول إلى خطط التمارين والتغذية وتتبع الوزن.
+            </p>
+            <a href="{% url 'subscription-request' %}" class="btn btn-primary btn-lg">
+                📝 طلب اشتراك جديد / تجديد باقة
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">📜 سجل الاشتراكات والطلبات السابقة</h3>
+    </div>
+
+    {% if subscriptions_history %}
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>تاريخ الطلب</th>
+                        <th>نوع الباقة</th>
+                        <th>الحالة</th>
+                        <th>تاريخ البداية</th>
+                        <th>تاريخ الانتهاء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscriptions_history %}
+                        <tr>
+                            <td>{{ sub.created_at|date:"Y-m-d" }}</td>
+                            <td><strong>{{ sub.get_plan_type_display }}</strong></td>
+                            <td>
+                                {% if sub.status == 'ACTIVE' %}
+                                    <span class="badge badge-active">نشط ✅</span>
+                                {% elif sub.status == 'PENDING' %}
+                                    <span class="badge badge-pending">قيد الانتظار ⏳</span>
+                                {% else %}
+                                    <span class="badge badge-expired">{{ sub.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ sub.start_date|default:"-" }}</td>
+                            <td>{{ sub.end_date|default:"-" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--text-secondary);">لا يوجد سجل طلبات سابق.</p>
+    {% endif %}
+</div>
+{% endblock %}

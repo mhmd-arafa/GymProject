@@ -1,32 +1,63 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>خطتي</title>
-</head>
-<body>
-    <h1>خطط التمرين بتاعتي</h1>
+{% extends 'base.html' %}
 
-    {% for plan in plans %}
-        <h2>{{ plan.title }}</h2>
+{% block title %}خطتي التدريبية — GymCoach Pro{% endblock %}
 
-        {% for day in plan.days.all %}
-            <h3>{{ day.day_name }}</h3>
-            <ul>
-                {% for exercise in day.exercises.all %}
-                    <li>{{ exercise.name }} — {{ exercise.sets }} sets x {{ exercise.reps }} reps
-                        {% if exercise.notes %} ({{ exercise.notes }}){% endif %}
-                    </li>
-                {% empty %}
-                    <li>لا يوجد تمارين في اليوم ده لسه</li>
-                {% endfor %}
-            </ul>
-        {% empty %}
-            <p>لا يوجد أيام في الخطة دي لسه</p>
-        {% endfor %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">🏋️‍♂️ خطط التمارين والتدريب</h1>
+        <p class="page-subtitle">جدول تمارينك الأسبوعي المقسم والمخصص لأهدافك</p>
+    </div>
+    <div>
+        <a href="{% url 'client-home' %}" class="btn btn-secondary btn-sm">العودة للرئيسية</a>
+    </div>
+</div>
 
-    {% empty %}
-        <p>لسه معندكش خطة تمرين. تواصل مع مدربك.</p>
-    {% endfor %}
-</body>
-</html>
+{% for plan in plans %}
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h2 class="card-title" style="color: var(--accent-cyan);">📋 {{ plan.title }}</h2>
+            <span class="badge badge-role">تاريخ الإنشاء: {{ plan.created_at|date:"Y-m-d" }}</span>
+        </div>
+
+        <div class="grid-cards" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            {% for day in plan.days.all %}
+                <div class="plan-day-card">
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-green); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                        ⚡ {{ day.day_name }}
+                    </h3>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        {% for exercise in day.exercises.all %}
+                            <div class="exercise-item">
+                                <div>
+                                    <strong style="font-size: 1rem; color: var(--text-primary);">{{ exercise.name }}</strong>
+                                    {% if exercise.notes %}
+                                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">💡 {{ exercise.notes }}</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <span class="exercise-chip">{{ exercise.sets }} مجموعات × {{ exercise.reps }} تكرار</span>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">لا توجد تمارين مضافة في هذا اليوم بعد.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color: var(--text-secondary);">لا توجد أيام مضافة في هذه الخطة بعد.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% empty %}
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🏋️‍♂️</div>
+        <h2 style="font-size: 1.4rem; margin-bottom: 0.5rem;">ليس لديك خطة تمرين نشطة حالياً</h2>
+        <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+            تواصل مع مدربك ليقوم بإنشاء خطة تمرين وتجهيز جدولك التدريبي المخصص.
+        </p>
+        <a href="{% url 'client-home' %}" class="btn btn-secondary">العودة للرئيسية</a>
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,21 +1,36 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>إضافة تمارين</title>
-</head>
-<body>
-    <h1>تمارين يوم: {{ object.day_name }}</h1>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ exercise_formset.management_form }}
+{% block title %}إضافة تمارين ليوم: {{ object.day_name }} — GymCoach Pro{% endblock %}
 
-        {% for exercise_form in exercise_formset %}
-            <div>{{ exercise_form.as_p }}</div>
-        {% endfor %}
+{% block content %}
+<div style="max-width: 800px; margin: 2rem auto;">
+    <div class="card form-card" style="max-width: 100%;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💪</div>
+            <h1 class="card-title" style="font-size: 1.6rem;">إضافة وتعديل التمارين</h1>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                يوم: <span style="color: var(--accent-cyan); font-weight: 700;">{{ object.day_name }}</span> (الخطة: {{ object.plan.title }} - المتدرب: {{ object.plan.client.username }})
+            </p>
+        </div>
 
-        <button type="submit">حفظ التمارين</button>
-    </form>
-</body>
-</html>
+        <form method="post">
+            {% csrf_token %}
+            {{ exercise_formset.management_form }}
+
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                {% for exercise_form in exercise_formset %}
+                    <div class="card" style="background: var(--bg-input); border-color: var(--border);">
+                        <h4 style="color: var(--accent-green); margin-bottom: 0.75rem; font-size: 1rem;">تمرين رقم {{ forloop.counter }}</h4>
+                        {{ exercise_form.as_p }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">حفظ كافة التمارين</button>
+                <a href="{% url 'client-detail' object.plan.client.pk %}" class="btn btn-secondary btn-lg">إلغاء والعودة لملف العميل</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

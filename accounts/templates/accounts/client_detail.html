@@ -1,13 +1,140 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ client.username }}</title>
-</head>
-<body>
-    <h1>{{ client.username }}</h1>
-    <p>Email: {{ client.email }}</p>
+{% extends 'base.html' %}
 
-    <a href="{% url 'client-list' %}">رجوع لقائمة العملاء</a>
-</body>
-</html>
+{% block title %}ملف المتدرب: {{ client.username }} — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">👤 ملف المتدرب: {{ client.username }}</h1>
+        <p class="page-subtitle">البريد الإلكتروني: {{ client.email|default:"غير مسجل" }}</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="{% url 'workout-plan-add' %}" class="btn btn-cyan btn-sm">🏋️‍♂️ + خطة تمرين</a>
+        <a href="{% url 'nutrition-plan-add' %}" class="btn btn-primary btn-sm">🥗 + خطة دايت</a>
+        <a href="{% url 'subscription-add' %}?client={{ client.pk }}" class="btn btn-secondary btn-sm">💳 + إضافة/تجديد اشتراك</a>
+        <a href="{% url 'client-progress-admin' client.pk %}" class="btn btn-secondary btn-sm">📈 سجل الصور والوزن</a>
+    </div>
+</div>
+
+<div class="grid-cards" style="margin-bottom: 2rem;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">💳 سجل الاشتراكات</h3>
+            <a href="{% url 'subscription-add' %}?client={{ client.pk }}" class="btn btn-primary btn-sm">+ اشتراك جديد</a>
+        </div>
+        {% if client.subscriptions.all %}
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>الباقة</th>
+                            <th>الحالة</th>
+                            <th>البداية</th>
+                            <th>الانتهاء</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in client.subscriptions.all %}
+                            <tr>
+                                <td>{{ sub.get_plan_type_display }}</td>
+                                <td>
+                                    {% if sub.status == 'ACTIVE' %}
+                                        <span class="badge badge-active">نشط ✅</span>
+                                    {% elif sub.status == 'PENDING' %}
+                                        <span class="badge badge-pending">معلق ⏳</span>
+                                    {% else %}
+                                        <span class="badge badge-expired">{{ sub.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ sub.start_date|default:"-" }}</td>
+                                <td>{{ sub.end_date|default:"-" }}</td>
+                                <td>
+                                    <a href="{% url 'subscription-edit' sub.pk %}" class="btn btn-secondary btn-sm">تعديل/تفعيل</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary);">لا توجد اشتراكات مسجلة لهذا العميل حتى الآن.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">📈 أحدث قياسات الوزن والصور</h3>
+            <a href="{% url 'client-progress-admin' client.pk %}" class="btn btn-secondary btn-sm">عرض الكل</a>
+        </div>
+        {% if client.progress_logs.all %}
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for log in client.progress_logs.all|slice:":4" %}
+                    <li style="background: var(--bg-input); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>📅 {{ log.date|date:"Y-m-d" }}</strong>
+                            {% if log.notes %}<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">{{ log.notes }}</p>{% endif %}
+                        </div>
+                        <div style="text-align: left;">
+                            <span class="badge badge-active">⚖️ {{ log.weight }} كجم</span>
+                            {% if log.photo %}<span class="badge badge-role" style="margin-right: 0.25rem;">📷 صورة</span>{% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: var(--text-secondary);">لم يسجل العميل أي قياسات حتى الآن.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🏋️‍♂️ خطط التمارين ({{ client.workout_plans.count }})</h3>
+            <a href="{% url 'workout-plan-add' %}" class="btn btn-cyan btn-sm">+ إضافة</a>
+        </div>
+        {% if client.workout_plans.all %}
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for plan in client.workout_plans.all %}
+                    <li style="background: var(--bg-input); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>{{ plan.title }}</strong>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">📅 {{ plan.created_at|date:"Y-m-d" }}</p>
+                        </div>
+                        <span class="badge badge-muted">{{ plan.days.count }} أيام</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: var(--text-secondary);">لا توجد خطط تمرين مسجلة.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🥗 خطط التغذية ({{ client.nutrition_plans.count }})</h3>
+            <a href="{% url 'nutrition-plan-add' %}" class="btn btn-primary btn-sm">+ إضافة</a>
+        </div>
+        {% if client.nutrition_plans.all %}
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for plan in client.nutrition_plans.all %}
+                    <li style="background: var(--bg-input); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>{{ plan.title }}</strong>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">📅 {{ plan.created_at|date:"Y-m-d" }}</p>
+                        </div>
+                        <span class="badge badge-muted">{{ plan.meals.count }} وجبات</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: var(--text-secondary);">لا توجد خطط تغذية مسجلة.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'client-list' %}" class="btn btn-secondary">⬅️ العودة لقائمة العملاء</a>
+</div>
+{% endblock %}

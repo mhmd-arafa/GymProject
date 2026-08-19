@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}GymCoach Pro — منصة التدريب الرياضي الشخصي والمتابعة أونلاين{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-tag">⚡ تدريب أونلاين بمستوى احترافي</div>
+    <h1 class="hero-title">
+        حوّل جسمك وحقق هدفك مع <br>
+        <span class="gradient-text">تدريب ومتابعة شخصية مخصصة</span>
+    </h1>
+    <p class="hero-desc">
+        منصة واحدة تجمع خطط تمارينك، وجباتك المحسوبة بدقة، وتتبع وزنك وصورك أسبوعياً بإشراف مباشر من مدربك الخاص.
+    </p>
+
+    <div class="hero-ctas">
+        {% if user.is_authenticated %}
+            <a href="{% if user.role == 'ADMIN' %}{% url 'client-list' %}{% else %}{% url 'client-home' %}{% endif %}" class="btn btn-primary btn-lg">
+                🚀 الانتقال للوحة التحكم
+            </a>
+        {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                🚀 ابدأ رحلتك الآن
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">
+                تسجيل الدخول
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+<section id="features" style="margin: 4rem 0;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h2 style="font-size: 2rem; font-weight: 800;">كل ما تحتاجه للوصول إلى أفضل نسخة من نفسك</h2>
+        <p style="color: var(--text-secondary);">نظام متابعة يومي وأسبوعي متكامل بديل لرسائل الواتساب والجداول اليدوية</p>
+    </div>
+
+    <div class="grid-cards">
+        <div class="feature-box">
+            <div class="feature-icon">🏋️‍♂️</div>
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">برامج تدريبية مفصلة</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                تمارين مقسمة حسب أيام الأسبوع مع تحديد دقيق للمجموعات، التكرارات، وملاحظات الأداء لكل تمرين.
+            </p>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">🥗</div>
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">أنظمة غذائية مرنة ومحسوبة</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                وجبات يومية محسوبة السعرات بدقة، مع تفصيل كامل لكميات البروتين، الكربوهيدرات، والدهون الصحية.
+            </p>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">📈</div>
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">تتبع التطور بالوزن والصور</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                سجل قياسات وزنك وارفع صور جسمك أسبوعياً ليراجعها المدرب ويحدث خطتك أولاً بأول.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 3rem 2rem; margin: 4rem 0;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h2 style="font-size: 2rem; font-weight: 800;">كيف تبدأ معنا؟ (3 خطوات بسيطة)</h2>
+    </div>
+
+    <div class="grid-3" style="text-align: center;">
+        <div>
+            <div style="font-size: 2.5rem; font-weight: 900; color: var(--accent-green); margin-bottom: 0.5rem;">01</div>
+            <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem;">سجل حسابك مجاناً</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">أنشئ حسابك الشخصي في ثوانٍ لتتمكن من التواصل مع المدرب.</p>
+        </div>
+
+        <div>
+            <div style="font-size: 2.5rem; font-weight: 900; color: var(--accent-cyan); margin-bottom: 0.5rem;">02</div>
+            <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem;">تفعيل الخطة والاشتراك</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">يقوم الكوتش بتفعيل اشتراكك وبناء خطة التمرين والنظام الغذائي الخاص بك.</p>
+        </div>
+
+        <div>
+            <div style="font-size: 2.5rem; font-weight: 900; color: var(--accent-amber); margin-bottom: 0.5rem;">03</div>
+            <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem;">التزم وسجل تقدمك</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">افتح تمرينك من الجيم، التزم بوجباتك، وسجل تطور وزنك أسبوعياً لتحقيق أفضل نتيجة.</p>
+        </div>
+    </div>
+</section>
+
+<section id="pricing" style="margin: 4rem 0;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <h2 style="font-size: 2rem; font-weight: 800;">باقات التدريب المتاحة</h2>
+        <p style="color: var(--text-secondary);">اختر الباقة المناسبة لهدفك وابدأ المتابعة المباشرة</p>
+    </div>
+
+    <div class="grid-3">
+        <div class="card" style="text-align: center; border-color: var(--border);">
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">باقة شهر واحد</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">مناسبة للتجربة والبداية</p>
+            <ul style="text-align: right; margin-bottom: 2rem; list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.95rem;">
+                <li>✅ خطة تمرين مخصصة</li>
+                <li>✅ دايت محسوب الماكروز</li>
+                <li>✅ متابعة أسبوعية وتعديل الخطط</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-secondary btn-block">اشترك الآن</a>
+        </div>
+
+        <div class="card" style="text-align: center; border-color: var(--accent-green); position: relative; box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);">
+            <div style="position: absolute; top: -12px; right: 50%; transform: translateX(50%); background: var(--accent-green); color: #000; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.8rem; border-radius: var(--radius-full);">الأكثر طلباً ⭐</div>
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">باقة 3 شهور</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">الأفضل لتحقيق تحول حقيقي</p>
+            <ul style="text-align: right; margin-bottom: 2rem; list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.95rem;">
+                <li>✅ خطة تدريب كاملة متدرجة</li>
+                <li>✅ برامج تغذية متنوعة</li>
+                <li>✅ تتبع أسبوعي بالوزن والصور</li>
+                <li>✅ أولوية في الرد والتعديل</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-block">اشترك الآن</a>
+        </div>
+
+        <div class="card" style="text-align: center; border-color: var(--border);">
+            <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">باقة 6 شهور</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">للالتزام وبناء نمط حياة صحي</p>
+            <ul style="text-align: right; margin-bottom: 2rem; list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.95rem;">
+                <li>✅ تدريب كامل لكل المراحل</li>
+                <li>✅ تغيير الدايت حسب التقدم</li>
+                <li>✅ مراجعة دورية شاملة</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-secondary btn-block">اشترك الآن</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,24 +1,40 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>إضافة خطة تمرين</title>
-</head>
-<body>
-    <h1>خطة تمرين جديدة</h1>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+{% block title %}إضافة خطة تمرين جديدة — GymCoach Pro{% endblock %}
 
-        <h2>الأيام</h2>
-        {{ days_formset.management_form }}
+{% block content %}
+<div style="max-width: 750px; margin: 2rem auto;">
+    <div class="card form-card" style="max-width: 100%;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏋️‍♂️</div>
+            <h1 class="card-title" style="font-size: 1.6rem;">إنشاء خطة تمرين جديدة</h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">حدد العميل وعنوان الخطة وأضف الأيام التدريبية</p>
+        </div>
 
-        {% for day_form in days_formset %}
-            <div>{{ day_form.as_p }}</div>
-        {% endfor %}
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="card" style="background: var(--bg-input); margin-bottom: 1.5rem; border-color: var(--border);">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--accent-cyan);">1. بيانات الخطة الأساسية</h3>
+                {{ form.as_p }}
+            </div>
 
-        <button type="submit">حفظ</button>
-    </form>
-</body>
-</html>
+            <div class="card" style="background: var(--bg-input); margin-bottom: 1.5rem; border-color: var(--border);">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--accent-green);">2. الأيام التدريبية في الخطة</h3>
+                {{ days_formset.management_form }}
+
+                {% for day_form in days_formset %}
+                    <div style="border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                        {{ day_form.as_p }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">حفظ الخطة والمتابعة</button>
+                <a href="{% url 'client-list' %}" class="btn btn-secondary btn-lg">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

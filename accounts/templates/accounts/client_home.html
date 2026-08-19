@@ -1,15 +1,53 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>الصفحة الرئيسية</title>
-  </head>
-  <body>
-    <h1>أهلاً بيك، {{ request.user.username }}</h1>
-    <p>هنا هيظهر نظام التمرين والغذائي بتاعك قريباً.</p>
-    <form method="post" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button type="submit">تسجيل الخروج</button>
-    </form>
-  </body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}لوحة المتدرب — GymCoach Pro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">أهلاً بك، {{ request.user.username }} 👋</h1>
+        <p class="page-subtitle">مرحباً بك في منصتك التدريبية، إليك خططك ومتابعتك اليومية</p>
+    </div>
+    <div>
+        <a href="{% url 'progress-add' %}" class="btn btn-primary">+ تسجيل قياس ووزن جديد</a>
+    </div>
+</div>
+
+<div class="grid-cards" style="margin-bottom: 2.5rem;">
+    <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🏋️‍♂️</div>
+        <h3 class="card-title">خطتي التدريبية</h3>
+        <p style="color: var(--text-secondary); margin: 0.75rem 0 1.5rem; font-size: 0.95rem;">
+            تصفح جدول تمارينك الأسبوعي، المجموعات والتكرارات المخصصة لك.
+        </p>
+        <a href="{% url 'my-workout-plan' %}" class="btn btn-cyan btn-block">فتح جدول التمارين</a>
+    </div>
+
+    <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🥗</div>
+        <h3 class="card-title">نظامي الغذائي</h3>
+        <p style="color: var(--text-secondary); margin: 0.75rem 0 1.5rem; font-size: 0.95rem;">
+            استعرض وجباتك اليومية المحسوبة بالسعرات والماكروز وملاحظات الدايت.
+        </p>
+        <a href="{% url 'my-nutrition-plan' %}" class="btn btn-primary btn-block">فتح جدول التغذية</a>
+    </div>
+
+    <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📈</div>
+        <h3 class="card-title">تتبع التطور والوزن</h3>
+        <p style="color: var(--text-secondary); margin: 0.75rem 0 1.5rem; font-size: 0.95rem;">
+            سجل قياسات وزنك الجديدة وارفع صور التطور لمتابعة النتيجة مع المدرب.
+        </p>
+        <a href="{% url 'my-progress' %}" class="btn btn-secondary btn-block">سجل التقدم والصور</a>
+    </div>
+
+    <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
+        <h3 class="card-title">حالة الاشتراك</h3>
+        <p style="color: var(--text-secondary); margin: 0.75rem 0 1.5rem; font-size: 0.95rem;">
+            اطّلع على صلاحية باقتك الحالية وسجل اشتراكاتك أو اطلب التجديد.
+        </p>
+        <a href="{% url 'my-subscription' %}" class="btn btn-secondary btn-block">تفاصيل الاشتراك</a>
+    </div>
+</div>
+{% endblock %}

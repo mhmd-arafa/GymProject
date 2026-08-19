@@ -4,13 +4,14 @@ from .models import WorkoutPlan
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from accounts.mixins import AdminRequiredMixin
+from subscriptions.mixins import ActiveSubscriptionRequiredMixin
 from .forms import WorkoutPlanForm, WorkoutDayFormSet
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import UpdateView
 from .models import WorkoutDay
 from .forms import ExerciseFormSet
 
-class MyWorkoutPlansView(LoginRequiredMixin, ListView):
+class MyWorkoutPlansView(ActiveSubscriptionRequiredMixin, ListView):
     model = WorkoutPlan
     template_name = "workouts/my_plans.html"
     context_object_name = "plans"

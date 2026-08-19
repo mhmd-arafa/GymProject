@@ -1,18 +1,44 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>تسجيل الدخول</title>
-</head>
-<body>
-    <h1>تسجيل الدخول</h1>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">دخول</button>
-    </form>
+{% block title %}تسجيل الدخول — GymCoach Pro{% endblock %}
 
-    <p>معندكش حساب؟ <a href="{% url 'register' %}">سجّل دلوقتي</a></p>
-</body>
-</html>
+{% block content %}
+<div style="max-width: 480px; margin: 3rem auto;">
+    <div class="card form-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
+            <h1 class="card-title" style="font-size: 1.6rem;">تسجيل الدخول</h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">أهلاً بك مجدداً! ادخل بيانات حسابك للمتابعة</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); color: var(--accent-rose); padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.9rem;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">اسم المستخدم:</label>
+                {{ form.username }}
+                {% if form.username.errors %}<span style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.username.errors }}</span>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">كلمة المرور:</label>
+                {{ form.password }}
+                {% if form.password.errors %}<span style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.password.errors }}</span>{% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+                دخول إلى حسابي
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border); font-size: 0.95rem; color: var(--text-secondary);">
+            ليس لديك حساب بعد؟ <a href="{% url 'register' %}" style="font-weight: 700; color: var(--accent-green);">سجل حساب جديد الآن</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
