@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل قياس جديد</title>
+</head>
+<body>
+    <h1>تسجيل قياس وصورة جديدة</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">حفظ القياس</button>
+    </form>
+
+    <p><a href="{% url 'my-progress' %}">إلغاء</a></p>
+</body>
+</html>

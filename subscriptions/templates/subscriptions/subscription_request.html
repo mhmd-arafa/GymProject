@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>طلب اشتراك</title>
+</head>
+<body>
+    <h1>طلب اشتراك جديد / تجديد</h1>
+
+    <p>اختر نوع الباقة وسيقوم المدرب بمراجعة طلبك وتفعيل الاشتراك في أقرب وقت.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">إرسال الطلب</button>
+    </form>
+
+    <p><a href="{% url 'my-subscription' %}">إلغاء</a></p>
+</body>
+</html>

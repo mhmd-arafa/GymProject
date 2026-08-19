@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة الاشتراكات</title>
+</head>
+<body>
+    <h1>إدارة الاشتراكات</h1>
+
+    <p>
+        <a href="{% url 'subscription-add' %}">إضافة اشتراك جديد</a> |
+        <a href="{% url 'client-list' %}">قائمة العملاء</a>
+    </p>
+
+    <p>
+        فلترة بالحالة:
+        <a href="{% url 'subscription-list' %}">الكل</a> |
+        <a href="{% url 'subscription-list' %}?status=PENDING">قيد الانتظار{% if pending_count %} ({{ pending_count }}){% endif %}</a> |
+        <a href="{% url 'subscription-list' %}?status=ACTIVE">النشطة</a> |
+        <a href="{% url 'subscription-list' %}?status=EXPIRED">المنتهية</a> |
+        <a href="{% url 'subscription-list' %}?status=CANCELLED">الملغاة</a>
+    </p>
+
+    {% if subscriptions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>العميل</th>
+                    <th>نوع الباقة</th>
+                    <th>الحالة</th>
+                    <th>البداية</th>
+                    <th>الانتهاء</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subscriptions %}
+                    <tr>
+                        <td><a href="{% url 'client-detail' sub.client.pk %}">{{ sub.client.username }}</a></td>
+                        <td>{{ sub.get_plan_type_display }}</td>
+                        <td>
+                            {% if sub.status == 'ACTIVE' %}
+                                نشط
+                            {% elif sub.status == 'PENDING' %}
+                                قيد الانتظار
+                            {% else %}
+                                {{ sub.get_status_display }}
+                            {% endif %}
+                        </td>
+                        <td>{{ sub.start_date|default:"-" }}</td>
+                        <td>{{ sub.end_date|default:"-" }}</td>
+                        <td>{{ sub.created_at|date:"Y-m-d H:i" }}</td>
+                        <td><a href="{% url 'subscription-edit' sub.pk %}">تعديل / تفعيل</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>لا توجد اشتراكات مطابقة للفلتر المحدد.</p>
+    {% endif %}
+</body>
+</html>

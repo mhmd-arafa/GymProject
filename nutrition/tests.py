@@ -1,11 +1,10 @@
-# pyrefly: ignore [missing-import]
 from django.test import TestCase
-# pyrefly: ignore [missing-import]
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib import admin
 from .models import NutritionPlan, Meal
 from .forms import NutritionPlanForm, MealFormSet
+from subscriptions.models import Subscription
 
 User = get_user_model()
 
@@ -72,6 +71,12 @@ class NutritionViewTests(TestCase):
         self.client2 = User.objects.create_user(
             username="client2", password="password123", role=User.Role.CLIENT
         )
+        # Give client1 active subscription so they can access plans
+        Subscription.objects.create(
+            client=self.client1,
+            plan_type=Subscription.PlanType.MONTHLY,
+            status=Subscription.Status.ACTIVE,
+        )
         self.plan1 = NutritionPlan.objects.create(client=self.client1, title="Client1 Plan")
         self.meal1 = Meal.objects.create(
             plan=self.plan1,
@@ -126,7 +131,6 @@ class NutritionViewTests(TestCase):
     def test_nutrition_plan_create_view_client_forbidden(self):
         self.client.login(username="client1", password="password123")
         response = self.client.get(reverse("nutrition-plan-add"))
-        # AdminRequiredMixin returns 403 Forbidden or redirect if not admin
         self.assertIn(response.status_code, [302, 403])
 
 

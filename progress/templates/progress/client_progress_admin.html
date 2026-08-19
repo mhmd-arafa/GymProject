@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تتبع تقدم العميل: {{ target_client.username }}</title>
+</head>
+<body>
+    <h1>سجل تطور العميل: {{ target_client.username }}</h1>
+
+    <p>
+        <a href="{% url 'client-detail' target_client.pk %}">صفحة تفاصيل العميل</a> |
+        <a href="{% url 'client-list' %}">قائمة العملاء</a>
+    </p>
+
+    {% if logs %}
+        <ul>
+            <li>وزن البداية: {{ start_weight }} كجم</li>
+            <li>الوزن الحالي: {{ latest_weight }} كجم</li>
+            <li>
+                الفرق: {% if weight_diff > 0 %}+{% endif %}{{ weight_diff }} كجم
+                ({% if weight_diff > 0 %}زيادة{% elif weight_diff < 0 %}نزول{% else %}ثابت{% endif %})
+            </li>
+        </ul>
+
+        <h2>سجل القياسات والصور ({{ logs|length }})</h2>
+
+        {% for log in logs %}
+            <h3>{{ log.date|date:"Y-m-d" }} — {{ log.weight }} كجم</h3>
+
+            {% if log.notes %}
+                <p>ملاحظات العميل: {{ log.notes }}</p>
+            {% endif %}
+
+            {% if log.photo %}
+                <p>
+                    <a href="{{ log.photo.url }}" target="_blank">
+                        <img src="{{ log.photo.url }}" alt="صورة تقدم {{ log.date|date:'Y-m-d' }}" width="200">
+                    </a>
+                </p>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <p>لم يسجل العميل أي قياسات بعد.</p>
+    {% endif %}
+</body>
+</html>

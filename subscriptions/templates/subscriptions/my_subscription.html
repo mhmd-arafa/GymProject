@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>حالة اشتراكي</title>
+</head>
+<body>
+    <h1>تفاصيل وحالة الاشتراك</h1>
+
+    <p><a href="{% url 'subscription-request' %}">طلب اشتراك جديد / تجديد</a></p>
+
+    {% if active_subscription %}
+        <h2>اشتراكك الحالي: نشط</h2>
+        <p>نوع الباقة: {{ active_subscription.get_plan_type_display }}</p>
+
+        <ul>
+            <li>تاريخ البداية: {{ active_subscription.start_date|default:"غير محدد" }}</li>
+            <li>تاريخ الانتهاء: {{ active_subscription.end_date|default:"غير محدد" }}</li>
+            <li>تاريخ الطلب: {{ active_subscription.created_at|date:"Y-m-d" }}</li>
+        </ul>
+
+        {% if active_subscription.notes %}
+            <p>ملاحظات المدرب: {{ active_subscription.notes }}</p>
+        {% endif %}
+    {% else %}
+        <h2>لا يوجد اشتراك نشط حالياً</h2>
+        <p>ليس لديك اشتراك نشط في الوقت الحالي للوصول إلى خطط التمارين والتغذية وتتبع الوزن.</p>
+    {% endif %}
+
+    <h2>سجل الاشتراكات والطلبات السابقة</h2>
+
+    {% if subscriptions_history %}
+        <table>
+            <thead>
+                <tr>
+                    <th>تاريخ الطلب</th>
+                    <th>نوع الباقة</th>
+                    <th>الحالة</th>
+                    <th>تاريخ البداية</th>
+                    <th>تاريخ الانتهاء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subscriptions_history %}
+                    <tr>
+                        <td>{{ sub.created_at|date:"Y-m-d" }}</td>
+                        <td>{{ sub.get_plan_type_display }}</td>
+                        <td>
+                            {% if sub.status == 'ACTIVE' %}
+                                نشط
+                            {% elif sub.status == 'PENDING' %}
+                                قيد الانتظار
+                            {% else %}
+                                {{ sub.get_status_display }}
+                            {% endif %}
+                        </td>
+                        <td>{{ sub.start_date|default:"-" }}</td>
+                        <td>{{ sub.end_date|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>لا يوجد سجل طلبات سابق.</p>
+    {% endif %}
+</body>
+</html>

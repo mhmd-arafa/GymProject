@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if object %}تعديل اشتراك{% else %}إضافة اشتراك جديد{% endif %}</title>
+</head>
+<body>
+    <h1>{% if object %}تعديل / تفعيل اشتراك ({{ object.client.username }}){% else %}إضافة اشتراك جديد لعميل{% endif %}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">حفظ البيانات</button>
+    </form>
+
+    <p><a href="{% url 'subscription-list' %}">إلغاء والعودة</a></p>
+</body>
+</html>
