@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Profile" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Profile" %}</h1>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+        <p class="slot__hint">
+            {% translate "Your phone number is how your coach reaches you on WhatsApp." %}
+        </p>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'client-home' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

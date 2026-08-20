@@ -1,18 +1,33 @@
 from django.urls import path
+
 from .views import (
-    SubscriptionListView,
-    SubscriptionCreateView,
-    SubscriptionUpdateView,
     MySubscriptionView,
-    SubscriptionRequestView,
-    NoActiveSubscriptionView,
+    PaymentApproveView,
+    PaymentProofUploadView,
+    PaymentRejectView,
+    PaymentReviewQueueView,
+    SubscriptionAssignView,
+    SubscriptionListView,
+    SubscriptionPlanCreateView,
+    SubscriptionPlanListView,
+    SubscriptionStartView,
 )
 
 urlpatterns = [
-    path("my-subscription/", MySubscriptionView.as_view(), name="my-subscription"),
-    path("request/", SubscriptionRequestView.as_view(), name="subscription-request"),
-    path("inactive-notice/", NoActiveSubscriptionView.as_view(), name="no-active-subscription"),
-    path("list/", SubscriptionListView.as_view(), name="subscription-list"),
-    path("add/", SubscriptionCreateView.as_view(), name="subscription-add"),
-    path("<int:pk>/edit/", SubscriptionUpdateView.as_view(), name="subscription-edit"),
+    path("me/", MySubscriptionView.as_view(), name="my-subscription"),
+    path("start/", SubscriptionStartView.as_view(), name="subscription-start"),
+    path(
+        "<int:subscription_pk>/payment-proof/",
+        PaymentProofUploadView.as_view(),
+        name="payment-proof-upload",
+    ),
+
+    path("payments/queue/", PaymentReviewQueueView.as_view(), name="payment-queue"),
+    path("payments/<int:pk>/approve/", PaymentApproveView.as_view(), name="payment-approve"),
+    path("payments/<int:pk>/reject/", PaymentRejectView.as_view(), name="payment-reject"),
+
+    path("all/", SubscriptionListView.as_view(), name="subscription-list"),
+    path("assign/", SubscriptionAssignView.as_view(), name="subscription-assign"),
+    path("plans/", SubscriptionPlanListView.as_view(), name="subscription-plan-list"),
+    path("plans/add/", SubscriptionPlanCreateView.as_view(), name="subscription-plan-add"),
 ]

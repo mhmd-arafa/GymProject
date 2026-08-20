@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Add progress photo" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Add photo" %}</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+        <p class="slot__hint">
+            {% translate "Large phone photos are fine — they're resized automatically, and location data is stripped." %}
+        </p>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Add photo" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-progress' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+
+{% if poses %}
+    <p class="eyebrow">{% translate "Your last shots — match the framing" %}</p>
+    <hr class="rule">
+    <div class="slots">
+        {% for pose in poses %}
+            <div class="slot">
+                <span class="slot__label">{{ pose.pose }}</span>
+                <div class="slot__ref">
+                    <img src="{{ pose.shots.0.image.url }}" alt="">
+                    <span class="slot__hint">{{ pose.shots.0.date }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

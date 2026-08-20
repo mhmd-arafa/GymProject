@@ -1,0 +1,9 @@
+{% load i18n %}
+{# Swapped into the set list when a logged set is rejected mid-workout. Styled as
+   a set row so it lands in place rather than breaking the ledger's rhythm. #}
+<li class="set" role="alert">
+    <span class="set__n" aria-hidden="true">!</span>
+    <span class="set__tag" style="color:var(--alert); letter-spacing:normal; text-transform:none">
+        {% for field, errors in form.errors.items %}{{ errors|join:" " }} {% endfor %}
+    </span>
+</li>

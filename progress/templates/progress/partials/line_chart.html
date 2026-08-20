@@ -1,0 +1,34 @@
+{% load i18n %}
+{% if chart %}
+    <figure style="margin:0">
+        <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img"
+             aria-label="{{ chart.label }}" width="100%" height="180"
+             style="color:var(--yellow); display:block; overflow:visible">
+            {# Baseline: gives the line something to sit on. #}
+            <line x1="30" y1="{{ chart.baseline_y }}" x2="{{ chart.width|add:'-30' }}"
+                  y2="{{ chart.baseline_y }}" stroke="var(--edge)" stroke-width="1"/>
+            <polyline points="{{ chart.polyline }}" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            {% for point in chart.points %}
+                <circle cx="{{ point.x }}" cy="{{ point.y }}" r="3"
+                        fill="var(--iron)" stroke="currentColor" stroke-width="2"/>
+            {% endfor %}
+            {# Label only the endpoints: a busy chart of every value is unreadable. #}
+            <text x="{{ chart.last.x }}" y="{{ chart.last.y }}" dy="-10" text-anchor="end"
+                  fill="var(--chalk)" font-family="IBM Plex Mono, monospace" font-size="15">
+                {{ chart.last.value|floatformat:"-1" }}
+            </text>
+            <text x="{{ chart.first.x }}" y="{{ chart.first.y }}" dy="20"
+                  fill="var(--dimmer)" font-family="IBM Plex Mono, monospace" font-size="13">
+                {{ chart.first.value|floatformat:"-1" }}
+            </text>
+        </svg>
+        <figcaption class="list__meta">
+            {{ chart.label }} ·
+            {% if chart.change > 0 %}+{% endif %}{{ chart.change|floatformat:"-1" }}
+            {% blocktranslate with n=chart.points|length %}over {{ n }} entries{% endblocktranslate %}
+        </figcaption>
+    </figure>
+{% else %}
+    <p class="quiet">{% translate "Two entries needed before this charts." %}</p>
+{% endif %}

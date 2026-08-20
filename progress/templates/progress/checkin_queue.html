@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Check-ins" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Check-ins" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'checkin-schedule' %}">{% translate "Schedule one" %}</a>
+    </div>
+</div>
+
+<section class="queue">
+    <ul class="queue__list">
+        {% for checkin in checkins %}
+            <li class="item item--act">
+                <div>
+                    <a class="item__who" href="{% url 'client-detail' checkin.client.pk %}">
+                        {{ checkin.client.username }}</a>
+                    <p class="item__what">
+                        {% if checkin.weight_kg %}{{ checkin.weight_kg|trim_decimal }}kg · {% endif %}
+                        {% if checkin.adherence_rating %}
+                            {% translate "plan" %} {{ checkin.adherence_rating|rating_stars }} ·
+                        {% endif %}
+                        {% if checkin.photos.all %}
+                            {% blocktranslate count counter=checkin.photos.all|length %}{{ counter }} photo{% plural %}{{ counter }} photos{% endblocktranslate %} ·
+                        {% endif %}
+                        {% blocktranslate with ago=checkin.submitted_at|timesince %}sent {{ ago }} ago{% endblocktranslate %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    <a class="btn btn--primary" href="{% url 'checkin-reply' checkin.pk %}">{% translate "Reply" %}</a>
+                </div>
+            </li>
+        {% empty %}
+            <li class="item">
+                <div><p class="item__what">{% translate "Nothing waiting." %}</p></div>
+                <div class="item__actions">
+                    <a class="btn btn--ghost" href="{% url 'trainer-dashboard' %}">{% translate "Back to today" %}</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

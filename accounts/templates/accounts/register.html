@@ -1,16 +1,23 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>تسجيل حساب جديد</title>
-</head>
-<body>
-    <h1>إنشاء حساب</h1>
+{% extends "base.html" %}
+{% load i18n %}
 
-    <form method="post">
+{% block title %}{% translate "Create an account" %}{% endblock %}
+
+{% block content %}
+<div class="auth">
+    <h1 class="auth__mark">{% translate "Gym Coach" %}</h1>
+    <p class="auth__tagline">{% translate "Set up your account, then your coach builds your plan." %}</p>
+
+    <form method="post" class="form-stack">
         {% csrf_token %}
+        {{ form.non_field_errors }}
         {{ form.as_p }}
-        <button type="submit">تسجيل</button>
+        <button class="btn btn--primary btn--log" type="submit">{% translate "Create account" %}</button>
     </form>
-</body>
-</html>
+
+    <p class="auth__alt">
+        {% translate "Already have one?" %}
+        <a href="{% url 'login' %}">{% translate "Log in" %}</a>
+    </p>
+</div>
+{% endblock %}

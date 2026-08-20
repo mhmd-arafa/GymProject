@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Today" %}{% endblock %}
+
+{% block content %}
+<div class="board-head">
+    <h1>{% translate "Today" %}</h1>
+    <p class="board-head__count">
+        {% if attention_total %}
+            <b>{{ attention_total }}</b> {% translate "need you" %} ·
+            {{ client_count }} {% translate "clients" %}
+        {% else %}
+            {{ client_count }} {% translate "clients" %} · {% translate "queue clear" %}
+        {% endif %}
+    </p>
+</div>
+
+{% if not attention_total %}
+    <div class="allclear">
+        <h2>{% translate "Nothing waiting" %}</h2>
+        <p>{% translate "No payments to approve, no check-ins to answer, everyone training. Write a plan or take the day." %}</p>
+    </div>
+{% endif %}
+
+{% if pending_payments %}
+    <section class="queue" aria-labelledby="q-payments">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-payments">{% translate "Payments to approve" %}</h2>
+            <span class="queue__n">{{ pending_payments|length }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for proof in pending_payments %}
+                <li class="item item--act">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' proof.subscription.client.pk %}">
+                            {{ proof.subscription.client.username }}</a>
+                        <p class="item__what">
+                            {{ proof.get_method_display }} · {{ proof.amount_egp|floatformat:"0" }} EGP
+                            {% if proof.reference_number %}· {{ proof.reference_number }}{% endif %}
+                            · {% blocktranslate with ago=proof.submitted_at|timesince %}{{ ago }} ago{% endblocktranslate %}
+                        </p>
+                    </div>
+                    <div class="item__actions">
+                        <a class="btn btn--ghost" href="{% url 'payment-queue' %}">{% translate "Review" %}</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+{% if unreviewed_checkins %}
+    <section class="queue" aria-labelledby="q-checkins">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-checkins">{% translate "Check-ins to answer" %}</h2>
+            <span class="queue__n">{{ unreviewed_checkins|length }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for checkin in unreviewed_checkins %}
+                <li class="item item--act">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' checkin.client.pk %}">
+                            {{ checkin.client.username }}</a>
+                        <p class="item__what">
+                            {% if checkin.weight_kg %}{{ checkin.weight_kg|trim_decimal }}kg · {% endif %}
+                            {% if checkin.adherence_rating %}
+                                {% translate "adherence" %} {{ checkin.adherence_rating|rating_stars }} ·
+                            {% endif %}
+                            {% blocktranslate with ago=checkin.submitted_at|timesince %}sent {{ ago }} ago{% endblocktranslate %}
+                        </p>
+                    </div>
+                    <div class="item__actions">
+                        <a class="btn btn--ghost" href="{% url 'checkin-reply' checkin.pk %}">{% translate "Reply" %}</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+{% if expiring_soon %}
+    <section class="queue" aria-labelledby="q-expiring">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-expiring">{% translate "Renewals due" %}</h2>
+            <span class="queue__n">{{ expiring_soon|length }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for subscription in expiring_soon %}
+                <li class="item item--act">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' subscription.client.pk %}">
+                            {{ subscription.client.username }}</a>
+                        <p class="item__what">
+                            {{ subscription.plan.name }} ·
+                            {% blocktranslate count counter=subscription.days_remaining %}{{ counter }} day left{% plural %}{{ counter }} days left{% endblocktranslate %}
+                        </p>
+                    </div>
+                    <div class="item__actions">
+                        {% whatsapp_url subscription.client.phone as wa %}
+                        {% if wa %}
+                            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "WhatsApp" %}</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+{% if overdue_checkins %}
+    <section class="queue" aria-labelledby="q-overdue">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-overdue">{% translate "Check-ins overdue" %}</h2>
+            <span class="queue__n">{{ overdue_checkins|length }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for checkin in overdue_checkins %}
+                <li class="item item--late">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' checkin.client.pk %}">
+                            {{ checkin.client.username }}</a>
+                        <p class="item__what item__when--late">
+                            {% blocktranslate with ago=checkin.due_date|timesince %}due {{ ago }} ago{% endblocktranslate %}
+                        </p>
+                    </div>
+                    <div class="item__actions">
+                        {% whatsapp_url checkin.client.phone as wa %}
+                        {% if wa %}
+                            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "Nudge" %}</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+{% if inactive_clients %}
+    <section class="queue" aria-labelledby="q-quiet">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-quiet">
+                {% blocktranslate with days=inactive_days %}Quiet for {{ days }}+ days{% endblocktranslate %}
+            </h2>
+            <span class="queue__n">{{ inactive_clients|length }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for client in inactive_clients %}
+                <li class="item item--late">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' client.pk %}">{{ client.username }}</a>
+                        <p class="item__what">{% translate "No workout logged" %}</p>
+                    </div>
+                    <div class="item__actions">
+                        {% whatsapp_url client.phone as wa %}
+                        {% if wa %}
+                            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "Check in" %}</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+{% if without_plan or without_intake %}
+    <section class="queue" aria-labelledby="q-setup">
+        <div class="queue__head">
+            <h2 class="queue__title" id="q-setup">{% translate "Not set up yet" %}</h2>
+            <span class="queue__n">{{ setup_total }}</span>
+        </div>
+        <ul class="queue__list">
+            {% for client in without_plan %}
+                <li class="item">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' client.pk %}">{{ client.username }}</a>
+                        <p class="item__what">{% translate "No workout plan" %}</p>
+                    </div>
+                    <div class="item__actions">
+                        <a class="btn btn--ghost" href="{% url 'plan-template-list' %}">{% translate "Assign template" %}</a>
+                    </div>
+                </li>
+            {% endfor %}
+            {% for client in without_intake %}
+                <li class="item">
+                    <div>
+                        <a class="item__who" href="{% url 'client-detail' client.pk %}">{{ client.username }}</a>
+                        <p class="item__what">{% translate "Intake form not filled in" %}</p>
+                    </div>
+                    <div class="item__actions">
+                        {% whatsapp_url client.phone as wa %}
+                        {% if wa %}
+                            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "Ask" %}</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+<hr class="rule">
+
+<nav class="shortcuts" aria-label="{% translate 'Shortcuts' %}">
+    <a href="{% url 'plan-template-add' %}">{% translate "New template" %}</a>
+    <a href="{% url 'workout-plan-add' %}">{% translate "New workout plan" %}</a>
+    <a href="{% url 'nutrition-plan-add' %}">{% translate "New nutrition plan" %}</a>
+    <a href="{% url 'exercise-catalog' %}">{% translate "Exercise library" %}</a>
+    <a href="{% url 'food-list' %}">{% translate "Food database" %}</a>
+    <a href="{% url 'checkin-schedule' %}">{% translate "Schedule check-in" %}</a>
+    <a href="{% url 'subscription-list' %}">{% translate "Subscriptions" %}</a>
+    <a href="{% url 'public-results' %}">{% translate "Results page" %}</a>
+</nav>
+{% endblock %}

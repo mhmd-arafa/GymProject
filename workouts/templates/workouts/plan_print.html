@@ -1,0 +1,109 @@
+{% load i18n gym_extras %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ plan.title }}</title>
+    {# Standalone by design: this page is ink on paper, not the dark app shell,
+       and it must render identically with no stylesheet or JS available. #}
+    <style>
+        @page { margin: 16mm; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #111;
+            background: #fff;
+            margin: 0;
+            font-size: 11pt;
+            line-height: 1.45;
+        }
+        header { border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 18px; }
+        h1 { font-size: 19pt; margin: 0 0 2px; letter-spacing: -0.01em; }
+        .who { color: #555; font-size: 10pt; margin: 0; }
+        .desc { color: #333; margin: 6px 0 0; }
+        h2 {
+            font-size: 12pt;
+            margin: 20px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        th, td {
+            text-align: start;
+            padding: 5px 7px;
+            border-bottom: 1px solid #ddd;
+            font-variant-numeric: tabular-nums;
+        }
+        th {
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #666;
+            border-bottom: 1px solid #999;
+        }
+        /* Blank column the client ticks off with a pen at the gym. */
+        .tick { width: 68px; color: #bbb; letter-spacing: 3px; }
+        section { break-inside: avoid; }
+        footer { margin-top: 22px; padding-top: 8px; border-top: 1px solid #ddd;
+                 color: #777; font-size: 9pt; }
+        .print-btn {
+            font: inherit; padding: 7px 13px; cursor: pointer;
+            border: 1px solid #111; background: #111; color: #fff; border-radius: 4px;
+            margin-bottom: 14px;
+        }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <button type="button" class="no-print print-btn" onclick="window.print()">
+        {% translate "Print or save as PDF" %}
+    </button>
+
+    <header>
+        <h1>{{ plan.title }}</h1>
+        {% if plan.client %}<p class="who">{{ plan.client.get_full_name|default:plan.client.username }}</p>{% endif %}
+        {% if plan.description %}<p class="desc">{{ plan.description }}</p>{% endif %}
+    </header>
+
+    {% for day in plan.days.all %}
+        <section>
+            <h2>{{ day.day_name }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% translate "Exercise" %}</th>
+                        <th>{% translate "Sets" %}</th>
+                        <th>{% translate "Reps" %}</th>
+                        <th>{% translate "Weight" %}</th>
+                        <th>{% translate "Rest" %}</th>
+                        <th class="tick">{% translate "Done" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exercise in day.exercises.all %}
+                        <tr>
+                            <td>
+                                {{ exercise.name }}
+                                {% if exercise.notes %}<br><small>{{ exercise.notes }}</small>{% endif %}
+                            </td>
+                            <td>{{ exercise.sets }}</td>
+                            <td>{{ exercise.rep_range_display }}</td>
+                            <td>
+                                {% if exercise.target_weight_kg %}
+                                    {{ exercise.target_weight_kg|trim_decimal }} kg
+                                {% else %}—{% endif %}
+                            </td>
+                            <td>{{ exercise.rest_seconds }}s</td>
+                            <td class="tick">▢ ▢ ▢ ▢</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6">{% translate "No exercises." %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endfor %}
+
+    <footer>{% translate "Log your sets in the app so your coach can see what you actually lifted." %}</footer>
+</body>
+</html>

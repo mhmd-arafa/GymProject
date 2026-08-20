@@ -3,3 +3,19 @@ venv/
 __pycache__/
 db.sqlite3
 .env
+
+# Scratch databases used by tools/smoke.py and local verification
+scratch.sqlite3
+smoke.sqlite3
+
+# Uploaded files (payment screenshots, progress photos)
+media/
+
+# collectstatic output; static/ itself IS tracked (vendored htmx lives there)
+staticfiles/
+
+# Compiled translation catalogues: regenerate with tools/i18n.py compile
+*.mo
+
+# Local dev server output
+server.log

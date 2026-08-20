@@ -1,221 +1,255 @@
+# pyrefly: ignore [missing-import]
 from datetime import timedelta
+from decimal import Decimal
+
+# pyrefly: ignore [missing-import]
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.contrib import admin
 from django.utils import timezone
-from .models import Subscription
-from .forms import AdminSubscriptionForm, ClientSubscriptionRequestForm
-from workouts.models import WorkoutPlan
-from nutrition.models import NutritionPlan
+
+from . import services
+from .models import PaymentProof, Subscription, SubscriptionPlan
 
 User = get_user_model()
 
 
-class SubscriptionModelTests(TestCase):
+class SubscriptionFixtureMixin:
     def setUp(self):
-        self.client_user = User.objects.create_user(
-            username="client1", password="password123", role=User.Role.CLIENT
-        )
-        self.today = timezone.localdate()
-
-    def test_subscription_creation_and_str(self):
-        sub = Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-        )
-        self.assertIn("client1", str(sub))
-        self.assertIn("نشط", str(sub))
-
-    def test_is_currently_active_logic(self):
-        # 1. PENDING status -> not active
-        sub_pending = Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.PENDING,
-        )
-        self.assertFalse(sub_pending.is_currently_active())
-
-        # 2. ACTIVE status with valid date range -> active
-        sub_active = Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-            start_date=self.today - timedelta(days=5),
-            end_date=self.today + timedelta(days=25),
-        )
-        self.assertTrue(sub_active.is_currently_active())
-
-        # 3. ACTIVE status with future start date -> not active yet
-        sub_future = Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-            start_date=self.today + timedelta(days=2),
-            end_date=self.today + timedelta(days=32),
-        )
-        self.assertFalse(sub_future.is_currently_active())
-
-        # 4. ACTIVE status with past end date -> expired / not active
-        sub_past = Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-            start_date=self.today - timedelta(days=40),
-            end_date=self.today - timedelta(days=10),
-        )
-        self.assertFalse(sub_past.is_currently_active())
-
-
-class SubscriptionFormTests(TestCase):
-    def setUp(self):
-        self.client_user = User.objects.create_user(
-            username="client1", password="password123", role=User.Role.CLIENT
-        )
-        self.admin_user = User.objects.create_user(
-            username="admin1", password="password123", role=User.Role.ADMIN
-        )
-
-    def test_admin_form_client_filter(self):
-        form = AdminSubscriptionForm()
-        clients_in_form = list(form.fields["client"].queryset)
-        self.assertIn(self.client_user, clients_in_form)
-        self.assertNotIn(self.admin_user, clients_in_form)
-
-    def test_client_request_form_valid(self):
-        form = ClientSubscriptionRequestForm(
-            data={"plan_type": Subscription.PlanType.QUARTERLY, "notes": "Need custom diet"}
-        )
-        self.assertTrue(form.is_valid())
-
-
-class SubscriptionViewTests(TestCase):
-    def setUp(self):
-        self.admin_user = User.objects.create_user(
+        self.coach = User.objects.create_user(
             username="coach", password="password123", role=User.Role.ADMIN
         )
         self.client_user = User.objects.create_user(
             username="client1", password="password123", role=User.Role.CLIENT
         )
-        self.today = timezone.localdate()
-
-    def test_admin_subscription_list_view(self):
-        self.client.login(username="coach", password="password123")
-        Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.PENDING,
+        self.plan = SubscriptionPlan.objects.create(
+            name="3 Months Coaching", duration_days=90, price_egp=Decimal("3000")
         )
-        response = self.client.get(reverse("subscription-list"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "client1")
-        self.assertContains(response, "قيد الانتظار")
 
-    def test_admin_subscription_create_and_update(self):
-        self.client.login(username="coach", password="password123")
-        create_data = {
-            "client": self.client_user.pk,
-            "plan_type": Subscription.PlanType.MONTHLY,
-            "status": Subscription.Status.ACTIVE,
-            "start_date": self.today.strftime("%Y-%m-%d"),
-            "end_date": (self.today + timedelta(days=30)).strftime("%Y-%m-%d"),
-            "notes": "First month paid in cash",
-        }
-        create_response = self.client.post(reverse("subscription-add"), create_data)
-        self.assertEqual(create_response.status_code, 302)
-        self.assertTrue(Subscription.objects.filter(client=self.client_user, status=Subscription.Status.ACTIVE).exists())
+    def make_subscription(self, status=Subscription.Status.PENDING):
+        return Subscription.objects.create(
+            client=self.client_user, plan=self.plan, status=status
+        )
 
-        sub = Subscription.objects.get(client=self.client_user)
-        update_data = {
-            "client": self.client_user.pk,
-            "plan_type": Subscription.PlanType.QUARTERLY,
-            "status": Subscription.Status.ACTIVE,
-            "start_date": self.today.strftime("%Y-%m-%d"),
-            "end_date": (self.today + timedelta(days=90)).strftime("%Y-%m-%d"),
-            "notes": "Upgraded to 3 months",
-        }
-        update_response = self.client.post(reverse("subscription-edit", kwargs={"pk": sub.pk}), update_data)
-        self.assertEqual(update_response.status_code, 302)
-        sub.refresh_from_db()
-        self.assertEqual(sub.plan_type, Subscription.PlanType.QUARTERLY)
+    def make_proof(self, subscription=None, status=PaymentProof.Status.PENDING):
+        return PaymentProof.objects.create(
+            subscription=subscription or self.make_subscription(),
+            method=PaymentProof.Method.INSTAPAY,
+            reference_number="REF123456",
+            amount_egp=Decimal("3000"),
+            status=status,
+        )
 
-    def test_client_subscription_request_flow(self):
+
+class ApprovePaymentTests(SubscriptionFixtureMixin, TestCase):
+    def test_approval_activates_and_computes_end_date(self):
+        proof = self.make_proof()
+        today = timezone.localdate()
+
+        subscription = services.approve_payment(proof, self.coach)
+
+        self.assertEqual(subscription.status, Subscription.Status.ACTIVE)
+        self.assertEqual(subscription.start_date, today)
+        self.assertEqual(subscription.end_date, today + timedelta(days=90))
+        self.assertTrue(subscription.is_active)
+
+        proof.refresh_from_db()
+        self.assertEqual(proof.status, PaymentProof.Status.APPROVED)
+        self.assertEqual(proof.reviewed_by, self.coach)
+        self.assertIsNotNone(proof.reviewed_at)
+
+    def test_approval_is_idempotent(self):
+        """A double-click must not silently extend someone's access."""
+        proof = self.make_proof()
+        first = services.approve_payment(proof, self.coach)
+        original_end = first.end_date
+
+        again = services.approve_payment(proof, self.coach)
+
+        self.assertEqual(again.end_date, original_end)
+
+    def test_approval_honours_an_explicit_start_date(self):
+        proof = self.make_proof()
+        start = timezone.localdate() - timedelta(days=10)
+
+        subscription = services.approve_payment(proof, self.coach, start=start)
+
+        self.assertEqual(subscription.start_date, start)
+        self.assertEqual(subscription.end_date, start + timedelta(days=90))
+
+    def test_rejection_leaves_subscription_pending(self):
+        proof = self.make_proof()
+        services.reject_payment(proof, self.coach, reason="Wrong amount")
+
+        proof.refresh_from_db()
+        self.assertEqual(proof.status, PaymentProof.Status.REJECTED)
+        self.assertEqual(proof.rejection_reason, "Wrong amount")
+        self.assertEqual(proof.subscription.status, Subscription.Status.PENDING)
+        self.assertFalse(proof.subscription.is_active)
+
+
+class SubscriptionModelTests(SubscriptionFixtureMixin, TestCase):
+    def test_days_remaining_is_none_without_end_date(self):
+        subscription = self.make_subscription()
+        self.assertIsNone(subscription.days_remaining)
+        self.assertFalse(subscription.is_active)
+
+    def test_days_remaining_counts_down(self):
+        subscription = self.make_subscription(status=Subscription.Status.ACTIVE)
+        subscription.start_date = timezone.localdate()
+        subscription.end_date = timezone.localdate() + timedelta(days=5)
+        subscription.save()
+
+        self.assertEqual(subscription.days_remaining, 5)
+        self.assertTrue(subscription.is_active)
+
+    def test_expired_window_is_not_active(self):
+        """A past end date must not read as active even if the status lags."""
+        subscription = self.make_subscription(status=Subscription.Status.ACTIVE)
+        subscription.end_date = timezone.localdate() - timedelta(days=1)
+        subscription.save()
+        self.assertFalse(subscription.is_active)
+
+    def test_expire_overdue_flips_status(self):
+        subscription = self.make_subscription(status=Subscription.Status.ACTIVE)
+        subscription.end_date = timezone.localdate() - timedelta(days=1)
+        subscription.save()
+
+        count = services.expire_overdue_subscriptions()
+
+        subscription.refresh_from_db()
+        self.assertEqual(count, 1)
+        self.assertEqual(subscription.status, Subscription.Status.EXPIRED)
+
+    def test_expire_leaves_current_subscriptions_alone(self):
+        subscription = self.make_subscription(status=Subscription.Status.ACTIVE)
+        subscription.end_date = timezone.localdate() + timedelta(days=3)
+        subscription.save()
+
+        services.expire_overdue_subscriptions()
+
+        subscription.refresh_from_db()
+        self.assertEqual(subscription.status, Subscription.Status.ACTIVE)
+
+
+class PaymentProofFormTests(SubscriptionFixtureMixin, TestCase):
+    def test_digital_transfer_needs_reference_or_screenshot(self):
+        from .forms import PaymentProofForm
+
+        form = PaymentProofForm(
+            data={
+                "method": PaymentProof.Method.INSTAPAY,
+                "amount_egp": "3000",
+                "reference_number": "",
+            }
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_cash_needs_neither(self):
+        from .forms import PaymentProofForm
+
+        form = PaymentProofForm(
+            data={
+                "method": PaymentProof.Method.CASH,
+                "amount_egp": "3000",
+                "reference_number": "",
+            }
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+
+class PaymentViewTests(SubscriptionFixtureMixin, TestCase):
+    def test_client_can_upload_a_proof(self):
+        subscription = self.make_subscription()
         self.client.login(username="client1", password="password123")
+
         response = self.client.post(
-            reverse("subscription-request"),
-            {"plan_type": Subscription.PlanType.MONTHLY, "notes": "Please activate my plan"},
+            reverse("payment-proof-upload", args=[subscription.pk]),
+            {
+                "method": PaymentProof.Method.VODAFONE_CASH,
+                "reference_number": "VC998877",
+                "amount_egp": "3000",
+                "note": "",
+            },
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(Subscription.objects.filter(client=self.client_user, status=Subscription.Status.PENDING).exists())
 
-    def test_my_subscription_view_displays_history(self):
-        self.client.login(username="client1", password="password123")
-        Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-            start_date=self.today - timedelta(days=1),
-            end_date=self.today + timedelta(days=29),
+        self.assertRedirects(response, reverse("my-subscription"))
+        self.assertTrue(subscription.payment_proofs.exists())
+
+    def test_client_cannot_upload_to_another_clients_subscription(self):
+        subscription = self.make_subscription()
+        intruder = User.objects.create_user(
+            username="intruder", password="password123", role=User.Role.CLIENT
         )
-        response = self.client.get(reverse("my-subscription"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "اشتراكك الحالي: نشط")
+        self.client.force_login(intruder)
 
-
-class ActiveSubscriptionGatingTests(TestCase):
-    def setUp(self):
-        self.admin_user = User.objects.create_user(
-            username="coach", password="password123", role=User.Role.ADMIN
+        response = self.client.get(
+            reverse("payment-proof-upload", args=[subscription.pk])
         )
-        self.client_user = User.objects.create_user(
-            username="client1", password="password123", role=User.Role.CLIENT
-        )
-        self.workout_plan = WorkoutPlan.objects.create(client=self.client_user, title="Full Body Plan")
-        self.nutrition_plan = NutritionPlan.objects.create(client=self.client_user, title="Diet Plan")
-        self.today = timezone.localdate()
+        self.assertEqual(response.status_code, 404)
 
-    def test_inactive_client_gated_from_workouts_and_nutrition(self):
-        self.client.login(username="client1", password="password123")
-        
-        # Inactive client gets redirected from workout plan to no-active-subscription
-        workout_response = self.client.get(reverse("my-workout-plan"))
-        self.assertRedirects(workout_response, reverse("no-active-subscription"))
-
-        # Inactive client gets redirected from nutrition plan to no-active-subscription
-        nutrition_response = self.client.get(reverse("my-nutrition-plan"))
-        self.assertRedirects(nutrition_response, reverse("no-active-subscription"))
-
-        # Inactive notice page is accessible
-        notice_response = self.client.get(reverse("no-active-subscription"))
-        self.assertEqual(notice_response.status_code, 200)
-        self.assertContains(notice_response, "الاشتراك غير نشط")
-
-    def test_active_client_can_access_workouts_and_nutrition(self):
-        # Activate subscription for client
-        Subscription.objects.create(
-            client=self.client_user,
-            plan_type=Subscription.PlanType.MONTHLY,
-            status=Subscription.Status.ACTIVE,
-            start_date=self.today - timedelta(days=1),
-            end_date=self.today + timedelta(days=29),
-        )
+    def test_approve_view_requires_admin(self):
+        proof = self.make_proof()
         self.client.login(username="client1", password="password123")
 
-        workout_response = self.client.get(reverse("my-workout-plan"))
-        self.assertEqual(workout_response.status_code, 200)
-        self.assertContains(workout_response, "Full Body Plan")
+        response = self.client.post(reverse("payment-approve", args=[proof.pk]))
 
-        nutrition_response = self.client.get(reverse("my-nutrition-plan"))
-        self.assertEqual(nutrition_response.status_code, 200)
-        self.assertContains(nutrition_response, "Diet Plan")
+        self.assertIn(response.status_code, (302, 403))
+        proof.refresh_from_db()
+        self.assertEqual(proof.status, PaymentProof.Status.PENDING)
 
-    def test_admin_always_can_access_admin_and_plans(self):
+    def test_coach_approves_through_the_view(self):
+        proof = self.make_proof()
         self.client.login(username="coach", password="password123")
-        response = self.client.get(reverse("subscription-list"))
-        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(reverse("payment-approve", args=[proof.pk]))
+
+        self.assertRedirects(response, reverse("payment-queue"))
+        proof.refresh_from_db()
+        self.assertEqual(proof.status, PaymentProof.Status.APPROVED)
+        self.assertEqual(proof.subscription.status, Subscription.Status.ACTIVE)
+
+    def test_coach_rejects_with_a_reason(self):
+        proof = self.make_proof()
+        self.client.login(username="coach", password="password123")
+
+        self.client.post(
+            reverse("payment-reject", args=[proof.pk]),
+            {"rejection_reason": "Screenshot unreadable"},
+        )
+
+        proof.refresh_from_db()
+        self.assertEqual(proof.status, PaymentProof.Status.REJECTED)
+        self.assertEqual(proof.rejection_reason, "Screenshot unreadable")
+
+    def test_queue_requires_admin(self):
+        self.client.login(username="client1", password="password123")
+        response = self.client.get(reverse("payment-queue"))
+        self.assertIn(response.status_code, (302, 403))
+
+    def test_client_sees_only_their_own_subscriptions(self):
+        self.make_subscription()
+        other = User.objects.create_user(
+            username="other", password="password123", role=User.Role.CLIENT
+        )
+        other_plan = SubscriptionPlan.objects.create(
+            name="Other Package", duration_days=30, price_egp=Decimal("1000")
+        )
+        Subscription.objects.create(client=other, plan=other_plan)
+
+        self.client.login(username="client1", password="password123")
+        response = self.client.get(reverse("my-subscription"))
+
+        self.assertContains(response, "3 Months Coaching")
+        # The other client's package appears only in the "available" list, never
+        # as one of their own subscriptions, so check the history section count.
+        self.assertEqual(len(response.context["subscriptions"]), 1)
 
 
 class SubscriptionAdminTests(TestCase):
-    def test_subscription_registered_in_admin(self):
+    def test_models_registered(self):
+        from django.contrib import admin
+
         self.assertIn(Subscription, admin.site._registry)
+        self.assertIn(PaymentProof, admin.site._registry)
+        self.assertIn(SubscriptionPlan, admin.site._registry)

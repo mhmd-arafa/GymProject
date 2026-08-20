@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Choose a package" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Choose a package" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "Pick a package, then send your transfer details on the next screen." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Continue to payment" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-subscription' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

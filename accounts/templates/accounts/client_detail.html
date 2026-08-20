@@ -1,13 +1,275 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ client.username }}</title>
-</head>
-<body>
-    <h1>{{ client.username }}</h1>
-    <p>Email: {{ client.email }}</p>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    <a href="{% url 'client-list' %}">رجوع لقائمة العملاء</a>
-</body>
-</html>
+{% block title %}{{ client.username }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ client.get_full_name|default:client.username }}</h1>
+    <div class="page-head__actions">
+        {% whatsapp_url client.phone as wa %}
+        {% if wa %}
+            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "WhatsApp" %}</a>
+        {% endif %}
+        <a class="btn btn--ghost" href="{% url 'client-progress' client.pk %}">{% translate "Progress" %}</a>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat__label">{% translate "Training" %}</span>
+        <span class="stat__value">
+            {% if adherence.percent is not None %}{{ adherence.percent }}<small>%</small>
+            {% else %}{{ adherence.completed }}{% endif %}
+        </span>
+        <span class="stat__delta">
+            {% if adherence.expected %}
+                {% blocktranslate with d=adherence.completed e=adherence.expected %}{{ d }} of {{ e }} this week{% endblocktranslate %}
+            {% else %}
+                {% blocktranslate with d=adherence.completed %}{{ d }} this week{% endblocktranslate %}
+            {% endif %}
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Subscription" %}</span>
+        {% if subscription %}
+            <span class="stat__value" style="font-size:var(--step-1)">{{ subscription.plan.name }}</span>
+            <span class="stat__delta {% if subscription.days_remaining and subscription.days_remaining < 8 %}stat__delta--up{% endif %}">
+                {% if subscription.days_remaining is not None %}
+                    {% blocktranslate count counter=subscription.days_remaining %}{{ counter }} day left{% plural %}{{ counter }} days left{% endblocktranslate %}
+                {% else %}{{ subscription.get_status_display }}{% endif %}
+            </span>
+        {% else %}
+            <span class="stat__value" style="font-size:var(--step-1)">—</span>
+            <span class="stat__delta"><a href="{% url 'subscription-assign' %}">{% translate "assign one" %}</a></span>
+        {% endif %}
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Contact" %}</span>
+        <span class="stat__value" style="font-size:var(--step-0)">{{ client.phone|default:"—" }}</span>
+        <span class="stat__delta">{{ client.email|default:"—" }}</span>
+    </div>
+</div>
+
+{% if suggestions %}
+    <p class="eyebrow">{% translate "Ready to progress" %}</p>
+    <hr class="rule">
+    <section class="queue">
+        <ul class="queue__list">
+            {% for suggestion in suggestions %}
+                <li class="item item--act">
+                    <div>
+                        <span class="item__who">{{ suggestion.exercise.name }}</span>
+                        <p class="item__what">
+                            {% blocktranslate with reps=suggestion.target_reps sessions=suggestion.sessions_at_top current=suggestion.current_weight_kg|trim_decimal %}Hit {{ reps }} reps on every set for {{ sessions }} sessions at {{ current }}kg{% endblocktranslate %}
+                        </p>
+                    </div>
+                    <div class="item__actions">
+                        <span class="badge badge--live">
+                            {% blocktranslate with next=suggestion.suggested_weight_kg|trim_decimal %}try {{ next }}kg{% endblocktranslate %}
+                        </span>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endif %}
+
+<p class="eyebrow">{% translate "Plans" %}</p>
+<hr class="rule">
+
+<div class="cards">
+    {% for plan in workout_plans %}
+        <div class="card">
+            <h2 class="card__title">{{ plan.title }}</h2>
+            <p class="card__meta">
+                {% blocktranslate count counter=plan.days.count %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+            </p>
+            <div class="card__body">
+                <ul class="list">
+                    {% for day in plan.days.all %}
+                        <li>
+                            <span>{{ day.day_name }}</span>
+                            <a class="list__meta" href="{% url 'add-exercises' day.pk %}">{% translate "edit" %}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card__foot">
+                <a class="btn btn--ghost" href="{% url 'workout-plan-print' plan.pk %}">{% translate "Print" %}</a>
+                {% workout_plan_whatsapp_text plan as plan_text %}
+                {% whatsapp_url client.phone plan_text as wa_plan %}
+                {% if wa_plan %}
+                    <a class="btn btn--ghost" href="{{ wa_plan }}" target="_blank" rel="noopener">{% translate "Send" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="card">
+            <h2 class="card__title">{% translate "No workout plan" %}</h2>
+            <div class="card__body">
+                <p class="card__meta">{% translate "Clone a template onto this client." %}</p>
+            </div>
+            <div class="card__foot">
+                <a class="btn btn--primary" href="{% url 'plan-template-list' %}">{% translate "Assign template" %}</a>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for plan in nutrition_plans %}
+        <div class="card">
+            <h2 class="card__title">{{ plan.title }}</h2>
+            <p class="card__meta">
+                {% blocktranslate count counter=plan.meals.count %}{{ counter }} meal{% plural %}{{ counter }} meals{% endblocktranslate %}
+            </p>
+            <div class="card__body"></div>
+            <div class="card__foot">
+                <a class="btn btn--ghost" href="{% url 'nutrition-plan-detail' plan.pk %}">{% translate "Open" %}</a>
+                <a class="btn btn--ghost" href="{% url 'nutrition-plan-print' plan.pk %}">{% translate "Print" %}</a>
+                {% nutrition_plan_whatsapp_text plan as diet_text %}
+                {% whatsapp_url client.phone diet_text as wa_diet %}
+                {% if wa_diet %}
+                    <a class="btn btn--ghost" href="{{ wa_diet }}" target="_blank" rel="noopener">{% translate "Send" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="card">
+            <h2 class="card__title">{% translate "No nutrition plan" %}</h2>
+            <div class="card__body"></div>
+            <div class="card__foot">
+                <a class="btn btn--ghost" href="{% url 'nutrition-plan-add' %}">{% translate "Create one" %}</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<p class="eyebrow">{% translate "Recent training" %}</p>
+<hr class="rule">
+<div class="panel">
+    <ul class="list">
+        {% for session in recent_sessions %}
+            <li>
+                <span class="list__lead">
+                    {% if session.day %}{{ session.day.day_name }}{% else %}{% translate "Ad-hoc" %}{% endif %}
+                </span>
+                <span class="list__meta">
+                    {{ session.started_at|date:"D j M" }}
+                    {% if session.completed_at %}
+                        · {% blocktranslate with v=session.total_volume_kg|trim_decimal %}{{ v }}kg{% endblocktranslate %}
+                    {% else %}
+                        · <span class="badge badge--live">{% translate "open" %}</span>
+                    {% endif %}
+                </span>
+            </li>
+        {% empty %}
+            <li class="quiet">{% translate "Nothing logged yet." %}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if records %}
+    <p class="eyebrow">{% translate "Personal bests" %}</p>
+    <hr class="rule">
+    <div class="panel">
+        <table class="data-table">
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td><a href="{% url 'exercise-history' record.catalog_exercise.slug %}?client={{ client.pk }}">
+                            {{ record.catalog_exercise.name }}</a></td>
+                        <td>{{ record.get_record_type_display }}</td>
+                        <td>{{ record.value|trim_decimal }}</td>
+                        <td>{{ record.achieved_on }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Intake" %}</p>
+<hr class="rule">
+<div class="panel">
+    {% if intake %}
+        <table class="data-table">
+            <tbody>
+                <tr><th scope="row">{% translate "Goal" %}</th><td>{{ intake.get_goal_display }}</td></tr>
+                <tr><th scope="row">{% translate "Equipment" %}</th><td>{{ intake.get_equipment_access_display }}</td></tr>
+                <tr><th scope="row">{% translate "Days a week" %}</th><td>{{ intake.training_days_per_week }}</td></tr>
+                <tr><th scope="row">{% translate "Injuries" %}</th><td>{{ intake.injuries|default:"—" }}</td></tr>
+                <tr><th scope="row">{% translate "Allergies" %}</th><td>{{ intake.allergies|default:"—" }}</td></tr>
+                <tr><th scope="row">{% translate "Dislikes" %}</th><td>{{ intake.food_dislikes|default:"—" }}</td></tr>
+                {% if intake.notes %}
+                    <tr><th scope="row">{% translate "Notes" %}</th><td>{{ intake.notes }}</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="quiet">{% translate "Not filled in yet." %}</p>
+        {% if wa %}
+            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "Ask for it" %}</a>
+        {% endif %}
+    {% endif %}
+</div>
+
+<p class="eyebrow">{% translate "Check-ins" %}</p>
+<hr class="rule">
+<div class="panel">
+    <ul class="queue__list">
+        {% for checkin in checkins %}
+            <li class="item {% if checkin.is_submitted and not checkin.reviewed %}item--act{% elif checkin.is_overdue %}item--late{% endif %}">
+                <div>
+                    <span class="item__who">{{ checkin.due_date }}</span>
+                    <p class="item__what">
+                        {% if checkin.is_submitted %}
+                            {% if checkin.reviewed %}{% translate "answered" %}{% else %}{% translate "waiting on you" %}{% endif %}
+                        {% elif checkin.is_overdue %}{% translate "overdue" %}
+                        {% else %}{% translate "scheduled" %}{% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    {% if checkin.is_submitted %}
+                        <a class="btn btn--ghost" href="{% url 'checkin-reply' checkin.pk %}">
+                            {% if checkin.reviewed %}{% translate "View" %}{% else %}{% translate "Reply" %}{% endif %}</a>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="item">
+                <div><p class="item__what">{% translate "None scheduled." %}</p></div>
+                <div class="item__actions">
+                    <a class="btn btn--ghost" href="{% url 'checkin-schedule' %}">{% translate "Schedule" %}</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{# Private trainer notes. This admin-only template is the only place they render. #}
+<p class="eyebrow">{% translate "Private notes" %}</p>
+<hr class="rule">
+<div class="panel">
+    <p class="quiet">{% translate "Only you see these. The client never does." %}</p>
+
+    <form method="post" action="{% url 'trainer-note-add' client.pk %}" class="form-stack">
+        {% csrf_token %}
+        {{ note_form.as_p }}
+        <button class="btn btn--ghost" type="submit">{% translate "Save note" %}</button>
+    </form>
+
+    <ul class="list" style="margin-block-start:var(--gap-3)">
+        {% for note in notes %}
+            <li style="display:block">
+                <span class="list__meta">
+                    {{ note.created_at|date:"j M Y, H:i" }}
+                    {% if note.author %}· {{ note.author.username }}{% endif %}
+                </span>
+                <p style="margin:2px 0 0">{{ note.body|linebreaksbr }}</p>
+            </li>
+        {% empty %}
+            <li class="quiet">{% translate "No notes yet." %}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

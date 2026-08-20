@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{{ client.username }} — {% translate "progress" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ client.username }}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'client-detail' client.pk %}">{% translate "Client file" %}</a>
+        {% whatsapp_url client.phone as wa %}
+        {% if wa %}
+            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "WhatsApp" %}</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat__label">{% translate "Weight" %}</span>
+        <span class="stat__value">{{ latest.weight_kg|trim_decimal|default:"—" }}<small> kg</small></span>
+        {% if weight_change is not None %}
+            <span class="stat__delta {% if weight_change < 0 %}stat__delta--down{% elif weight_change > 0 %}stat__delta--up{% endif %}">
+                {% if weight_change > 0 %}+{% endif %}{{ weight_change|trim_decimal }} {% translate "total" %}
+            </span>
+        {% endif %}
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Waist" %}</span>
+        <span class="stat__value">{{ latest.waist_cm|trim_decimal|default:"—" }}<small> cm</small></span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Training" %}</span>
+        <span class="stat__value">
+            {% if adherence.percent is not None %}{{ adherence.percent }}<small>%</small>{% else %}{{ adherence.completed }}{% endif %}
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Photos" %}</span>
+        <span class="stat__value">{{ photo_count }}</span>
+    </div>
+</div>
+
+{% if poses %}
+    <p class="eyebrow">{% translate "First and latest" %}</p>
+    <hr class="rule">
+    {% for pose in poses %}
+        {% if pose.first and pose.last %}
+            <section class="compare">
+                <div class="compare__head">
+                    <h2 class="compare__pose">{{ pose.pose }}</h2>
+                    <span class="compare__span">
+                        {% blocktranslate count counter=pose.span_days %}{{ counter }} day apart{% plural %}{{ counter }} days apart{% endblocktranslate %}
+                    </span>
+                </div>
+                <div class="compare__pair">
+                    <div class="compare__slot compare__slot--then">
+                        <span class="compare__tag">{% translate "first" %}</span>
+                        <a href="{{ pose.first.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ pose.first.image.url }}" alt="{{ pose.pose }} {{ pose.first.date }}">
+                        </a>
+                        <p class="compare__date">{{ pose.first.date }}</p>
+                    </div>
+                    <div class="compare__slot compare__slot--now">
+                        <span class="compare__tag compare__tag--now">{% translate "latest" %}</span>
+                        <a href="{{ pose.last.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ pose.last.image.url }}" alt="{{ pose.pose }} {{ pose.last.date }}">
+                        </a>
+                        <p class="compare__date">{{ pose.last.date }}</p>
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+    {% endfor %}
+
+    <p class="eyebrow">{% translate "Every photo" %}</p>
+    <hr class="rule">
+    {% for pose in poses %}
+        <div class="panel">
+            <div class="panel__head">
+                <h2>{{ pose.pose }}</h2>
+                <span class="quiet">{{ pose.shots|length }}</span>
+            </div>
+            <div class="shots">
+                {% for photo in pose.shots %}
+                    <figure class="shot" style="margin:0">
+                        <a href="{{ photo.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ photo.image.url }}" alt="{{ pose.pose }} {{ photo.date }}">
+                        </a>
+                        <figcaption class="shot__caption">
+                            <span>{{ photo.date|date:"j M y" }}</span>
+                            {% if photo.consent_public %}
+                                <span class="shot__shared">{% translate "may share" %}</span>
+                            {% else %}
+                                <span>{% translate "private" %}</span>
+                            {% endif %}
+                        </figcaption>
+                    </figure>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+    <p class="quiet">
+        {% translate "Only photos marked “may share” can be used publicly. The client controls that, not you." %}
+    </p>
+{% else %}
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "Photos" %}</h2></div>
+        <p class="quiet">{% translate "This client hasn't sent any photos yet." %}</p>
+        {% whatsapp_url client.phone as wa2 %}
+        {% if wa2 %}
+            <a class="btn btn--ghost" href="{{ wa2 }}" target="_blank" rel="noopener">
+                {% translate "Ask for photos" %}</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Measurements" %}</p>
+<hr class="rule">
+<div class="panel">
+    {% include "progress/partials/line_chart.html" with chart=weight_chart %}
+</div>
+<div class="panel">
+    {% include "progress/partials/line_chart.html" with chart=waist_chart %}
+</div>
+<div class="panel">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">{% translate "Date" %}</th>
+                <th scope="col">{% translate "kg" %}</th>
+                <th scope="col">{% translate "Waist" %}</th>
+                <th scope="col">{% translate "Chest" %}</th>
+                <th scope="col">{% translate "Arm" %}</th>
+                <th scope="col">{% translate "Thigh" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in measurements %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.weight_kg|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.waist_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.chest_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.arm_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.thigh_cm|trim_decimal|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">{% translate "No measurements yet." %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="eyebrow">{% translate "Check-in history" %}</p>
+<hr class="rule">
+<div class="panel">
+    <ul class="queue__list">
+        {% for checkin in checkins %}
+            <li class="item {% if checkin.is_submitted and not checkin.reviewed %}item--act{% elif checkin.is_overdue %}item--late{% endif %}">
+                <div>
+                    <span class="item__who">{{ checkin.due_date }}</span>
+                    <p class="item__what">
+                        {% if checkin.is_submitted %}
+                            {% if checkin.reviewed %}{% translate "answered" %}{% else %}{% translate "waiting on your reply" %}{% endif %}
+                            {% if checkin.photos.all %}
+                                · {% blocktranslate count counter=checkin.photos.all|length %}{{ counter }} photo{% plural %}{{ counter }} photos{% endblocktranslate %}
+                            {% endif %}
+                        {% elif checkin.is_overdue %}
+                            {% translate "overdue" %}
+                        {% else %}
+                            {% translate "scheduled" %}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    {% if checkin.is_submitted %}
+                        <a class="btn btn--ghost" href="{% url 'checkin-reply' checkin.pk %}">
+                            {% if checkin.reviewed %}{% translate "View" %}{% else %}{% translate "Reply" %}{% endif %}</a>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="item"><div><p class="item__what">{% translate "No check-ins yet." %}</p></div><div></div></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

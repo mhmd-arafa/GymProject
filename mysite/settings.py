@@ -47,9 +47,13 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Must follow AuthenticationMiddleware: it reads request.user to apply the
+    # client's saved language preference over the one LocaleMiddleware picked.
+    'accounts.middleware.UserLanguageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -59,13 +63,14 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -79,12 +84,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": config("DB_ENGINE", default="django.db.backends.postgresql"),
         "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
+        "USER": config("DB_USER", default=""),
+        "PASSWORD": config("DB_PASSWORD", default=""),
+        "HOST": config("DB_HOST", default=""),
+        "PORT": config("DB_PORT", default=""),
     }
 }
 
@@ -109,6 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "accounts.User"
 
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard-home"
 LOGOUT_REDIRECT_URL = "login"
 
@@ -116,9 +122,19 @@ LOGOUT_REDIRECT_URL = "login"
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# English is the source language: all strings in code and templates are written
+# in English and wrapped in gettext. Arabic is supplied as a translation
+# catalogue in locale/ar/LC_MESSAGES/django.po.
+LANGUAGE_CODE = 'en'
 
-TIME_ZONE = 'UTC'
+LANGUAGES = [
+    ('en', 'English'),
+    ('ar', 'العربية'),
+]
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
+
+TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
 
@@ -130,8 +146,21 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Media files (User uploaded images and files)
-MEDIA_URL = '/media/'
+# Holds static/vendor/htmx-*.min.js. Vendored rather than loaded from a CDN so
+# the in-gym set logger works on unreliable gym wifi and needs no third-party
+# request at page load.
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Target for `collectstatic`. Without it that command fails, which would take
+# the vendored htmx down with it in production.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+# Uploaded files (payment screenshots, progress photos)
+# https://docs.djangoproject.com/en/6.1/topics/files/
+
+MEDIA_URL = 'media/'
+
 MEDIA_ROOT = BASE_DIR / 'media'
 
 

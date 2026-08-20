@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% if session.day %}{{ session.day.day_name }}{% else %}{% translate "Workout" %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="session-head">
+    <h1>{% if session.day %}{{ session.day.day_name }}{% else %}{% translate "Workout" %}{% endif %}</h1>
+    <p class="session-head__meta">
+        {{ session.started_at|time:"H:i" }} ·
+        {% blocktranslate count counter=rows|length %}{{ counter }} lift{% plural %}{{ counter }} lifts{% endblocktranslate %}
+    </p>
+</div>
+
+{% if rows %}
+    <div class="pips" role="img"
+         aria-label="{% blocktranslate with done=lifts_started total=rows|length %}{{ done }} of {{ total }} lifts started{% endblocktranslate %}">
+        {% for row in rows %}
+            <span class="pips__pip {% if row.sets %}pips__pip--done{% endif %}"></span>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<hr class="rule">
+
+{% for row in rows %}
+    <section class="lift" aria-labelledby="lift-{{ row.exercise.pk }}">
+        <div class="lift__head">
+            <span class="lift__index">{{ forloop.counter|stringformat:"02d" }}</span>
+            <div>
+                <h2 class="lift__name" id="lift-{{ row.exercise.pk }}">{{ row.exercise.name }}</h2>
+                <p class="lift__prescription">
+                    {{ row.exercise.sets }} × {{ row.exercise.rep_range_display }}
+                    {% if row.exercise.rest_seconds %}· {% blocktranslate with s=row.exercise.rest_seconds %}rest {{ s }}s{% endblocktranslate %}{% endif %}
+                    {% if row.exercise.catalog_exercise.video_url %}
+                        · <a class="lift__demo" href="{{ row.exercise.catalog_exercise.video_url }}"
+                             target="_blank" rel="noopener">{% translate "demo" %}</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {# The whole point of the product: last session, directly above where
+           you write this one, like the facing page of a paper logbook. #}
+        <div class="lasttime {% if not row.last_time %}lasttime--empty{% endif %}">
+            <span class="lasttime__label">{% translate "Last time" %}</span>
+            <span class="lasttime__value">
+                {% if row.last_time %}{{ row.last_time }}{% else %}{% translate "No history yet" %}{% endif %}
+            </span>
+        </div>
+
+        {% if row.suggestion %}
+            <p class="suggestion">
+                <span class="suggestion__mark" aria-hidden="true">↑</span>
+                <span>{% blocktranslate with weight=row.suggestion.suggested_weight_kg|trim_decimal reps=row.suggestion.target_reps %}You hit {{ reps }} reps on every set twice — try {{ weight }}kg.{% endblocktranslate %}</span>
+            </p>
+        {% endif %}
+
+        {% if row.exercise.notes %}<p class="quiet">{{ row.exercise.notes }}</p>{% endif %}
+
+        <ul class="sets" id="sets-{{ row.exercise.pk }}">
+            {% for set_log in row.sets %}
+                {% include "workouts/partials/set_row.html" with set_log=set_log records=None %}
+            {% endfor %}
+        </ul>
+
+        {% comment %}
+            hx-post swaps the new row in with no page reload. Without HTMX the
+            same POST still works and the view redirects back here.
+        {% endcomment %}
+        <form class="entry" method="post"
+              action="{% url 'log-set' session.pk %}"
+              hx-post="{% url 'log-set' session.pk %}"
+              hx-target="#sets-{{ row.exercise.pk }}"
+              hx-swap="beforeend"
+              data-rest-seconds="{{ row.exercise.rest_seconds }}"
+              data-equipment="{{ row.exercise.catalog_exercise.equipment|default:'' }}">
+            {% csrf_token %}
+            <input type="hidden" name="exercise" value="{{ row.exercise.pk }}">
+            <input type="hidden" name="set_number" value="{{ row.next_set_number }}">
+
+            <div class="entry__fields entry__fields--three">
+                <div class="field">
+                    <label class="field__label" for="weight-{{ row.exercise.pk }}">{% translate "kg" %}</label>
+                    <input class="field__input" type="number" step="0.5" min="0" inputmode="decimal"
+                           id="weight-{{ row.exercise.pk }}" name="weight_kg"
+                           data-plate-input
+                           value="{{ row.suggested_weight|default_if_none:''|trim_decimal }}" required>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="reps-{{ row.exercise.pk }}">{% translate "reps" %}</label>
+                    <input class="field__input" type="number" step="1" min="1" inputmode="numeric"
+                           id="reps-{{ row.exercise.pk }}" name="reps"
+                           value="{{ row.exercise.reps }}" required>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="rpe-{{ row.exercise.pk }}">{% translate "rpe" %}</label>
+                    <input class="field__input" type="number" step="0.5" min="1" max="10" inputmode="decimal"
+                           id="rpe-{{ row.exercise.pk }}" name="rpe">
+                </div>
+            </div>
+
+            {# SIGNATURE: how to load the bar. Barbell lifts only. #}
+            <div class="plates" data-plate-strip aria-live="polite">
+                {% plate_loading row.suggested_weight row.exercise.catalog_exercise.equipment as loading %}
+                {% if loading %}
+                    <span class="plates__label">{% translate "per side" %}</span>
+                    <span class="plates__bar">{% blocktranslate with kg=loading.bar_kg %}bar {{ kg }}{% endblocktranslate %}</span>
+                    {% for chip in loading.chips %}
+                        <span class="plates__chip" data-size="{{ chip.size }}">{{ chip.label }}</span>
+                    {% endfor %}
+                    {% if loading.remainder %}
+                        <span class="plates__remainder">+{{ loading.remainder }}{% translate "kg short" %}</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <label class="warmup" for="warmup-{{ row.exercise.pk }}">
+                <input type="checkbox" id="warmup-{{ row.exercise.pk }}" name="is_warmup" value="on">
+                {% translate "Warm-up set" %}
+            </label>
+
+            <button class="btn btn--primary btn--log" type="submit">
+                {% blocktranslate with n=row.next_set_number %}Log set {{ n }}{% endblocktranslate %}
+            </button>
+        </form>
+    </section>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "Nothing programmed yet" %}</h2>
+        <p>{% translate "Your coach hasn't added exercises to this day. Message them and it'll show up here." %}</p>
+    </div>
+{% endfor %}
+
+<section class="session-foot" aria-labelledby="finish-heading">
+    <p class="eyebrow" id="finish-heading">{% translate "Finish" %}</p>
+    <hr class="rule">
+    <div class="finish">
+        <form method="post" action="{% url 'session-complete' session.pk %}">
+            {% csrf_token %}
+            {{ complete_form.as_p }}
+            <button class="btn btn--primary" type="submit">{% translate "Finish workout" %}</button>
+        </form>
+    </div>
+</section>
+
+<div class="rest" id="rest" hidden>
+    <span class="rest__label">{% translate "Rest" %}</span>
+    <output class="rest__clock" id="rest-clock" role="timer" aria-live="polite">0:00</output>
+    <span class="rest__track"><span class="rest__fill" id="rest-fill"></span></span>
+    <button class="btn btn--ghost" type="button" id="rest-skip">{% translate "Skip" %}</button>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* ---- Rest timer -----------------------------------------------------
+       Vanilla JS: this runs mid-workout and must not depend on htmx loading. */
+    var bar    = document.getElementById("rest");
+    var clock  = document.getElementById("rest-clock");
+    var fill   = document.getElementById("rest-fill");
+    var skip   = document.getElementById("rest-skip");
+    var ticker = null;
+
+    function paint(left, total) {
+        var m = Math.floor(left / 60);
+        var s = left % 60;
+        clock.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+        fill.style.inlineSize = (total ? (left / total) * 100 : 0) + "%";
+    }
+
+    function stop() {
+        if (ticker) { clearInterval(ticker); ticker = null; }
+        bar.hidden = true;
+        bar.classList.remove("rest--done");
+    }
+
+    function start(seconds) {
+        if (ticker) { clearInterval(ticker); }
+        var total = seconds, left = seconds;
+        bar.hidden = false;
+        bar.classList.remove("rest--done");
+        paint(left, total);
+        ticker = setInterval(function () {
+            left -= 1;
+            if (left <= 0) {
+                clearInterval(ticker); ticker = null;
+                paint(0, total);
+                bar.classList.add("rest--done");
+                clock.textContent = "{% translate 'Go' %}";
+                if (navigator.vibrate) { navigator.vibrate(400); }
+                return;
+            }
+            paint(left, total);
+        }, 1000);
+    }
+
+    skip.addEventListener("click", stop);
+
+    /* ---- Plate math -----------------------------------------------------
+       Mirrors workouts.services.plate_breakdown so the strip tracks the input
+       live. The server-rendered strip is what you see before touching it. */
+    var BAR = 20;
+    var PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+    var SIZES = { 25: "xl", 20: "xl", 15: "l", 10: "l", 5: "m", 2.5: "s", 1.25: "s" };
+    var LABEL_PER_SIDE = "{% translate 'per side' %}";
+    var LABEL_BAR = "{% translate 'bar' %}";
+    var LABEL_SHORT = "{% translate 'kg short' %}";
+
+    function trim(n) {
+        return String(Math.round(n * 100) / 100);
+    }
+
+    function renderPlates(form) {
+        var strip = form.querySelector("[data-plate-strip]");
+        var input = form.querySelector("[data-plate-input]");
+        if (!strip || !input) { return; }
+
+        if ((form.dataset.equipment || "").toUpperCase() !== "BARBELL") {
+            strip.textContent = "";
+            return;
+        }
+
+        var total = parseFloat(input.value);
+        if (isNaN(total) || total <= BAR) { strip.textContent = ""; return; }
+
+        var perSide = (total - BAR) / 2;
+        var left = perSide;
+        var chips = [];
+        for (var i = 0; i < PLATES.length; i++) {
+            while (left >= PLATES[i] - 1e-9) {
+                chips.push(PLATES[i]);
+                left -= PLATES[i];
+            }
+        }
+        if (!chips.length) { strip.textContent = ""; return; }
+
+        var html = '<span class="plates__label">' + LABEL_PER_SIDE + '</span>'
+                 + '<span class="plates__bar">' + LABEL_BAR + ' ' + BAR + '</span>';
+        chips.forEach(function (p) {
+            html += '<span class="plates__chip" data-size="' + SIZES[p] + '">' + trim(p) + '</span>';
+        });
+        if (left > 1e-9) {
+            html += '<span class="plates__remainder">+' + trim(left) + LABEL_SHORT + '</span>';
+        }
+        strip.innerHTML = html;
+    }
+
+    document.querySelectorAll("form[data-rest-seconds]").forEach(function (form) {
+        var input = form.querySelector("[data-plate-input]");
+        if (input) {
+            input.addEventListener("input", function () { renderPlates(form); });
+        }
+    });
+
+    /* Start resting as soon as a set is logged, by either path. */
+    document.body.addEventListener("submit", function (event) {
+        var form = event.target.closest("form[data-rest-seconds]");
+        if (form) { start(parseInt(form.dataset.restSeconds, 10) || 90); }
+    });
+})();
+</script>
+{% endblock %}

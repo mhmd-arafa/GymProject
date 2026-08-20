@@ -1,67 +1,130 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>حالة اشتراكي</title>
-</head>
-<body>
-    <h1>تفاصيل وحالة الاشتراك</h1>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    <p><a href="{% url 'subscription-request' %}">طلب اشتراك جديد / تجديد</a></p>
+{% block title %}{% translate "Subscription" %}{% endblock %}
 
-    {% if active_subscription %}
-        <h2>اشتراكك الحالي: نشط</h2>
-        <p>نوع الباقة: {{ active_subscription.get_plan_type_display }}</p>
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Subscription" %}</h1>
+</div>
 
-        <ul>
-            <li>تاريخ البداية: {{ active_subscription.start_date|default:"غير محدد" }}</li>
-            <li>تاريخ الانتهاء: {{ active_subscription.end_date|default:"غير محدد" }}</li>
-            <li>تاريخ الطلب: {{ active_subscription.created_at|date:"Y-m-d" }}</li>
+{% if current %}
+    <div class="stats">
+        <div class="stat">
+            <span class="stat__label">{% translate "Package" %}</span>
+            <span class="stat__value" style="font-size:var(--step-1)">{{ current.plan.name }}</span>
+            <span class="stat__delta">{% translate "active" %}</span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Days left" %}</span>
+            <span class="stat__value">{{ current.days_remaining }}</span>
+            <span class="stat__delta">
+                {% blocktranslate with d=current.end_date %}until {{ d }}{% endblocktranslate %}
+            </span>
+        </div>
+    </div>
+{% endif %}
+
+{% for subscription in pending %}
+    <section class="queue" aria-label="{% translate 'Awaiting approval' %}">
+        <ul class="queue__list">
+            <li class="item item--act">
+                <div>
+                    <span class="item__who">{{ subscription.plan.name }}</span>
+                    <p class="item__what">
+                        {% if subscription.payment_proofs.all %}
+                            {% translate "Your coach is checking your payment" %}
+                        {% else %}
+                            {% translate "Waiting for your payment details" %}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    <a class="btn btn--primary" href="{% url 'payment-proof-upload' subscription.pk %}">
+                        {% if subscription.payment_proofs.all %}
+                            {% translate "Send again" %}
+                        {% else %}
+                            {% translate "Send payment details" %}
+                        {% endif %}
+                    </a>
+                </div>
+            </li>
+            {% for proof in subscription.payment_proofs.all %}
+                <li class="item {% if proof.status == 'REJECTED' %}item--late{% endif %}">
+                    <div>
+                        <span class="item__who">{{ proof.get_method_display }}</span>
+                        <p class="item__what">
+                            {{ proof.amount_egp|floatformat:"0" }} EGP
+                            {% if proof.reference_number %}· {{ proof.reference_number }}{% endif %}
+                            · {{ proof.submitted_at|date:"j M, H:i" }}
+                        </p>
+                        {% if proof.rejection_reason %}
+                            <p class="item__what item__when--late">{{ proof.rejection_reason }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="item__actions">
+                        {% if proof.status == 'APPROVED' %}
+                            <span class="badge badge--ok">{{ proof.get_status_display }}</span>
+                        {% elif proof.status == 'REJECTED' %}
+                            <span class="badge badge--late">{{ proof.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge">{{ proof.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
         </ul>
+    </section>
+{% endfor %}
 
-        {% if active_subscription.notes %}
-            <p>ملاحظات المدرب: {{ active_subscription.notes }}</p>
-        {% endif %}
-    {% else %}
-        <h2>لا يوجد اشتراك نشط حالياً</h2>
-        <p>ليس لديك اشتراك نشط في الوقت الحالي للوصول إلى خطط التمارين والتغذية وتتبع الوزن.</p>
-    {% endif %}
+{% if not current and not pending %}
+    <div class="allclear">
+        <h2>{% translate "No active subscription" %}</h2>
+        <p>{% translate "Pick a package below, then send your transfer details. Your coach approves it and you're in." %}</p>
+    </div>
+{% endif %}
 
-    <h2>سجل الاشتراكات والطلبات السابقة</h2>
+<p class="eyebrow">{% translate "Packages" %}</p>
+<hr class="rule">
+<div class="cards">
+    {% for plan in plans %}
+        <div class="card">
+            <h2 class="card__title">{{ plan.name }}</h2>
+            <p class="card__meta">
+                {{ plan.price_egp|floatformat:"0" }} EGP ·
+                {% blocktranslate count counter=plan.duration_days %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+            </p>
+            <div class="card__body">
+                {% if plan.description %}<p class="quiet">{{ plan.description }}</p>{% endif %}
+            </div>
+            <div class="card__foot">
+                <a class="btn btn--ghost" href="{% url 'subscription-start' %}">{% translate "Choose" %}</a>
+            </div>
+        </div>
+    {% empty %}
+        <p class="quiet">{% translate "No packages available right now." %}</p>
+    {% endfor %}
+</div>
 
-    {% if subscriptions_history %}
-        <table>
-            <thead>
-                <tr>
-                    <th>تاريخ الطلب</th>
-                    <th>نوع الباقة</th>
-                    <th>الحالة</th>
-                    <th>تاريخ البداية</th>
-                    <th>تاريخ الانتهاء</th>
-                </tr>
-            </thead>
+{% if subscriptions %}
+    <p class="eyebrow">{% translate "History" %}</p>
+    <hr class="rule">
+    <div class="panel">
+        <table class="data-table">
             <tbody>
-                {% for sub in subscriptions_history %}
+                {% for subscription in subscriptions %}
                     <tr>
-                        <td>{{ sub.created_at|date:"Y-m-d" }}</td>
-                        <td>{{ sub.get_plan_type_display }}</td>
+                        <td>{{ subscription.plan.name }}</td>
+                        <td>{{ subscription.get_status_display }}</td>
                         <td>
-                            {% if sub.status == 'ACTIVE' %}
-                                نشط
-                            {% elif sub.status == 'PENDING' %}
-                                قيد الانتظار
-                            {% else %}
-                                {{ sub.get_status_display }}
-                            {% endif %}
+                            {% if subscription.start_date %}
+                                {{ subscription.start_date }} → {{ subscription.end_date }}
+                            {% else %}—{% endif %}
                         </td>
-                        <td>{{ sub.start_date|default:"-" }}</td>
-                        <td>{{ sub.end_date|default:"-" }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <p>لا يوجد سجل طلبات سابق.</p>
-    {% endif %}
-</body>
-</html>
+    </div>
+{% endif %}
+{% endblock %}

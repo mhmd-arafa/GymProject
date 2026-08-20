@@ -1,44 +1,171 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>سجل تطور جسمي ووزني</title>
-</head>
-<body>
-    <h1>سجل تطور الوزن والصور</h1>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    <p><a href="{% url 'progress-add' %}">تسجيل قياس وصورة جديدة</a></p>
+{% block title %}{% translate "My progress" %}{% endblock %}
 
-    {% if logs %}
-        <ul>
-            <li>وزن البداية: {{ start_weight }} كجم</li>
-            <li>الوزن الحالي: {{ latest_weight }} كجم</li>
-            <li>
-                الفرق: {% if weight_diff > 0 %}+{% endif %}{{ weight_diff }} كجم
-                ({% if weight_diff > 0 %}زيادة{% elif weight_diff < 0 %}نزول{% else %}ثابت{% endif %})
-            </li>
-        </ul>
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "My progress" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'measurement-add' %}">{% translate "Add measurements" %}</a>
+        <a class="btn btn--primary" href="{% url 'progress-photo-add' %}">{% translate "Add photo" %}</a>
+    </div>
+</div>
 
-        <h2>السجلات السابقة ({{ logs|length }})</h2>
-
-        {% for log in logs %}
-            <h3>{{ log.date|date:"Y-m-d" }} — {{ log.weight }} كجم</h3>
-
-            {% if log.notes %}
-                <p>{{ log.notes }}</p>
+{% if latest %}
+    <div class="stats">
+        <div class="stat">
+            <span class="stat__label">{% translate "Weight" %}</span>
+            <span class="stat__value">{{ latest.weight_kg|trim_decimal|default:"—" }}<small> kg</small></span>
+            {% if weight_change is not None %}
+                <span class="stat__delta {% if weight_change < 0 %}stat__delta--down{% elif weight_change > 0 %}stat__delta--up{% endif %}">
+                    {% if weight_change > 0 %}+{% endif %}{{ weight_change|trim_decimal }} {% translate "since start" %}
+                </span>
             {% endif %}
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Waist" %}</span>
+            <span class="stat__value">{{ latest.waist_cm|trim_decimal|default:"—" }}<small> cm</small></span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Photos" %}</span>
+            <span class="stat__value">{{ photo_count }}</span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Entries" %}</span>
+            <span class="stat__value">{{ measurements|length }}</span>
+        </div>
+    </div>
+{% endif %}
 
-            {% if log.photo %}
-                <p>
-                    <a href="{{ log.photo.url }}" target="_blank">
-                        <img src="{{ log.photo.url }}" alt="صورة تقدم {{ log.date|date:'Y-m-d' }}" width="200">
-                    </a>
-                </p>
-            {% endif %}
-        {% endfor %}
-    {% else %}
-        <p>لم تسجل أي قياسات حتى الآن.</p>
-        <p>اضغط على الرابط أعلاه لتسجيل وزنك وصورتك الأولى ومتابعة تطورك مع الكوتش.</p>
-    {% endif %}
-</body>
-</html>
+{% if poses %}
+    <p class="eyebrow">{% translate "Then and now" %}</p>
+    <hr class="rule">
+    {% for pose in poses %}
+        {% if pose.first and pose.last %}
+            <section class="compare" aria-labelledby="cmp-{{ pose.pose_value }}">
+                <div class="compare__head">
+                    <h2 class="compare__pose" id="cmp-{{ pose.pose_value }}">{{ pose.pose }}</h2>
+                    <span class="compare__span">
+                        {% blocktranslate count counter=pose.span_days %}{{ counter }} day apart{% plural %}{{ counter }} days apart{% endblocktranslate %}
+                    </span>
+                </div>
+                <div class="compare__pair">
+                    <div class="compare__slot compare__slot--then">
+                        <span class="compare__tag">{% translate "then" %}</span>
+                        <img src="{{ pose.first.image.url }}"
+                             alt="{% blocktranslate with p=pose.pose d=pose.first.date %}{{ p }} view on {{ d }}{% endblocktranslate %}">
+                        <p class="compare__date">{{ pose.first.date }}</p>
+                    </div>
+                    <div class="compare__slot compare__slot--now">
+                        <span class="compare__tag compare__tag--now">{% translate "now" %}</span>
+                        <img src="{{ pose.last.image.url }}"
+                             alt="{% blocktranslate with p=pose.pose d=pose.last.date %}{{ p }} view on {{ d }}{% endblocktranslate %}">
+                        <p class="compare__date">{{ pose.last.date }}</p>
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<p class="eyebrow">{% translate "Measurements" %}</p>
+<hr class="rule">
+
+<div class="panel">
+    <div class="panel__head"><h2>{% translate "Weight" %}</h2></div>
+    {% include "progress/partials/line_chart.html" with chart=weight_chart %}
+</div>
+
+<div class="panel">
+    <div class="panel__head"><h2>{% translate "Waist" %}</h2></div>
+    {% include "progress/partials/line_chart.html" with chart=waist_chart %}
+</div>
+
+<div class="panel">
+    <div class="panel__head"><h2>{% translate "All entries" %}</h2></div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">{% translate "Date" %}</th>
+                <th scope="col">{% translate "kg" %}</th>
+                <th scope="col">{% translate "Waist" %}</th>
+                <th scope="col">{% translate "Chest" %}</th>
+                <th scope="col">{% translate "Arm" %}</th>
+                <th scope="col">{% translate "Thigh" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in measurements %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.weight_kg|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.waist_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.chest_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.arm_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.thigh_cm|trim_decimal|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">{% translate "Nothing recorded yet." %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="eyebrow">{% translate "Photos" %}</p>
+<hr class="rule">
+
+{% if poses %}
+    {% for pose in poses %}
+        <div class="panel">
+            <div class="panel__head">
+                <h2>{{ pose.pose }}</h2>
+                <span class="quiet">{{ pose.shots|length }}</span>
+            </div>
+            <div class="shots">
+                {% for photo in pose.shots %}
+                    <figure class="shot" style="margin:0">
+                        <img src="{{ photo.image.url }}"
+                             alt="{% blocktranslate with p=pose.pose d=photo.date %}{{ p }} view on {{ d }}{% endblocktranslate %}">
+                        <figcaption class="shot__caption">
+                            <span>{{ photo.date|date:"j M y" }}</span>
+                            {% if photo.consent_public %}
+                                <span class="shot__shared">{% translate "shared" %}</span>
+                            {% endif %}
+                        </figcaption>
+                        <div class="shot__caption">
+                            <a href="{% url 'photo-consent' photo.pk %}">{% translate "sharing" %}</a>
+                            <a href="{% url 'photo-delete' photo.pk %}">{% translate "delete" %}</a>
+                        </div>
+                    </figure>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="allclear">
+        <h2>{% translate "No photos yet" %}</h2>
+        <p>{% translate "Photos are the clearest progress signal your coach has — the scale misses what they show. Shoot front, side and back in the same spot and lighting each time." %}</p>
+        <p><a class="btn btn--primary" href="{% url 'progress-photo-add' %}">{% translate "Add your first photo" %}</a></p>
+    </div>
+{% endif %}
+
+{% if records %}
+    <p class="eyebrow">{% translate "Personal records" %}</p>
+    <hr class="rule">
+    <div class="panel">
+        <table class="data-table">
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.catalog_exercise.name }}</td>
+                        <td>{{ record.get_record_type_display }}</td>
+                        <td>{{ record.value|trim_decimal }}</td>
+                        <td>{{ record.achieved_on }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

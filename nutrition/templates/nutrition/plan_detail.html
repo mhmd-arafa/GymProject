@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ plan.title }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ plan.title }}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'macro-target-edit' plan.pk %}">{% translate "Target" %}</a>
+        <a class="btn btn--ghost" href="{% url 'supplement-schedule' plan.pk %}">{% translate "Supplements" %}</a>
+        <a class="btn btn--ghost" href="{% url 'nutrition-plan-print' plan.pk %}">{% translate "Print" %}</a>
+    </div>
+</div>
+
+<p class="board-head__count">
+    <a href="{% url 'client-detail' plan.client.pk %}">{{ plan.client.username }}</a>
+</p>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat__label">{% translate "Calories" %}</span>
+        <span class="stat__value">{{ totals.calories }}</span>
+        {% if plan.macro_target %}
+            <span class="stat__delta">
+                {% blocktranslate with t=plan.macro_target.target_calories %}target {{ t }}{% endblocktranslate %}
+            </span>
+        {% endif %}
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Protein" %}</span>
+        <span class="stat__value">{{ totals.protein }}<small> g</small></span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Carbs" %}</span>
+        <span class="stat__value">{{ totals.carbs }}<small> g</small></span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Fats" %}</span>
+        <span class="stat__value">{{ totals.fats }}<small> g</small></span>
+    </div>
+</div>
+
+{% if comparison %}
+    <div class="panel">
+        <div class="panel__head">
+            <h2>{% translate "Against target" %}</h2>
+            {% if comparison.any_off_target %}
+                <span class="badge badge--late">{% translate "off target" %}</span>
+            {% else %}
+                <span class="badge badge--ok">{% translate "on target" %}</span>
+            {% endif %}
+        </div>
+        {% for line in comparison.rows %}
+            <div class="target__row">
+                <span class="target__label">{{ line.label }}</span>
+                <span>{{ line.actual }} / {{ line.target }}</span>
+                <span class="target__diff {% if line.off_target %}target__diff--off{% endif %}">
+                    {% if line.difference > 0 %}+{% endif %}{{ line.difference }}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="panel">
+        <p class="quiet">{% translate "No target set, so nothing to check the plan against." %}</p>
+        <a class="btn btn--ghost" href="{% url 'macro-target-edit' plan.pk %}">{% translate "Set a target" %}</a>
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Meals" %}</p>
+<hr class="rule">
+<div class="panel">
+    {% for meal in meals %}
+        <div class="meal">
+            <div class="meal__head">
+                <h3 class="meal__name">{{ meal.name }}</h3>
+                <div class="macros">
+                    <span class="macros__kcal">{{ meal.calories }} kcal</span>
+                    <span>P <b>{{ meal.protein }}</b></span>
+                    <span>C <b>{{ meal.carbs }}</b></span>
+                    <span>F <b>{{ meal.fats }}</b></span>
+                    <a href="{% url 'meal-food-items' meal.pk %}">{% translate "build from foods" %}</a>
+                </div>
+            </div>
+
+            {% if meal.food_items.all %}
+                <ul class="list">
+                    {% for item in meal.food_items.all %}
+                        <li>
+                            <span>{{ item.food.name }}</span>
+                            <span class="list__meta">{{ item.grams }} g</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="slot__hint">{% translate "Hand-entered macros — no foods attached." %}</p>
+            {% endif %}
+
+            {% for alternative in meal.alternatives.all %}
+                <div class="meal__alt">
+                    <span class="meal__alt-label">{% translate "or" %}</span>
+                    <div class="meal__head">
+                        <span class="list__lead">{{ alternative.name }}</span>
+                        <div class="macros">
+                            <span>{{ alternative.calories }} kcal</span>
+                            <span>P <b>{{ alternative.protein }}</b></span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% empty %}
+        <p class="quiet">{% translate "No meals in this plan yet." %}</p>
+    {% endfor %}
+</div>
+{% endblock %}

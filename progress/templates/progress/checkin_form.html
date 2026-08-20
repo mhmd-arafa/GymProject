@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Weekly check-in" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Check-in" %}</h1>
+    <p class="board-head__count">{% translate "due" %} {{ object.due_date }}</p>
+</div>
+
+{# enctype is what makes the file inputs actually send anything. #}
+<form method="post" enctype="multipart/form-data" class="form-stack">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "This week" %}</h2></div>
+
+        <p>
+            {{ form.weight_kg.errors }}
+            <label for="{{ form.weight_kg.id_for_label }}">{% translate "Weight (kg)" %}</label>
+            {{ form.weight_kg }}
+        </p>
+
+        <div class="entry__fields entry__fields--three">
+            <div class="field">
+                {{ form.energy_rating.errors }}
+                <label class="field__label" for="{{ form.energy_rating.id_for_label }}">{% translate "Energy" %}</label>
+                {{ form.energy_rating }}
+            </div>
+            <div class="field">
+                {{ form.sleep_rating.errors }}
+                <label class="field__label" for="{{ form.sleep_rating.id_for_label }}">{% translate "Sleep" %}</label>
+                {{ form.sleep_rating }}
+            </div>
+            <div class="field">
+                {{ form.adherence_rating.errors }}
+                <label class="field__label" for="{{ form.adherence_rating.id_for_label }}">{% translate "Plan" %}</label>
+                {{ form.adherence_rating }}
+            </div>
+        </div>
+        <p class="slot__hint">{% translate "Rate each from 1 to 5." %}</p>
+
+        <p>
+            {{ form.note.errors }}
+            <label for="{{ form.note.id_for_label }}">{% translate "How did the week go?" %}</label>
+            {{ form.note }}
+        </p>
+    </div>
+
+    <div class="panel">
+        <div class="panel__head">
+            <h2>{% translate "Photos" %}</h2>
+            <span class="quiet">{% translate "optional" %}</span>
+        </div>
+        <p class="quiet">
+            {% translate "Same spot, same light, same time of day. Matching last week's framing is what lets your coach see real change instead of a different angle." %}
+        </p>
+
+        <div class="slots">
+            {% for slot in photo_slots %}
+                <div class="slot">
+                    {{ slot.field.errors }}
+                    <label class="slot__label" for="{{ slot.field.id_for_label }}">{{ slot.field.label }}</label>
+                    {{ slot.field }}
+
+                    {% if slot.reference %}
+                        <div class="slot__ref">
+                            <img src="{{ slot.reference.image.url }}" alt="">
+                            <span class="slot__hint">
+                                {% blocktranslate with d=slot.reference.date %}{{ d }} — match this{% endblocktranslate %}
+                            </span>
+                        </div>
+                    {% elif slot.existing %}
+                        <div class="slot__ref">
+                            <img src="{{ slot.existing.image.url }}" alt="">
+                            <span class="slot__hint">{% translate "already sent — upload to replace" %}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="consent" style="margin-block-start:var(--gap-3)">
+            {{ form.consent_public }}
+            <div>
+                <label for="{{ form.consent_public.id_for_label }}">{{ form.consent_public.label }}</label>
+                <span class="helptext">{{ form.consent_public.help_text }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Send to my coach" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-checkins' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Photo sharing" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Photo sharing" %}</h1>
+</div>
+
+<div class="panel">
+    <div class="compare__pair">
+        <div class="compare__slot">
+            <img src="{{ object.image.url }}" alt="{{ object.get_pose_display }}">
+            <p class="compare__date">{{ object.get_pose_display }} · {{ object.date }}</p>
+        </div>
+    </div>
+    <p class="quiet">
+        {% translate "Ticking this lets your coach show the photo on their public results page. Untick it any time and it comes straight down." %}
+    </p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-progress' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

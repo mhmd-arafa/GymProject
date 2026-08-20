@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Supplements" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Supplements" %}</h1>
+    <p class="board-head__count">{{ object.title }}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ schedule_formset.management_form }}
+    {% for entry_form in schedule_formset %}
+        <div class="formset__row">{{ entry_form.as_p }}</div>
+    {% endfor %}
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'nutrition-plan-detail' object.pk %}">{% translate "Back to plan" %}</a>
+    </div>
+</form>
+{% endblock %}

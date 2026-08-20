@@ -1,0 +1,72 @@
+{% load i18n static %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}{% translate "Gym Coach" %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    {# Served from our own host: no CDN, so the set logger works offline-ish. #}
+    <script src="{% static 'vendor/htmx-2.0.4.min.js' %}" defer></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="topbar">
+        <a class="topbar__mark" href="{% url 'dashboard-home' %}">{% translate "Gym Coach" %}</a>
+
+        {% if user.is_authenticated %}
+            <nav class="topbar__nav" aria-label="{% translate 'Main' %}">
+                {% if user.role == "ADMIN" %}
+                    <a href="{% url 'trainer-dashboard' %}">{% translate "Today" %}</a>
+                    <a href="{% url 'client-list' %}">{% translate "Clients" %}</a>
+                    <a href="{% url 'plan-template-list' %}">{% translate "Templates" %}</a>
+                    <a href="{% url 'exercise-catalog' %}">{% translate "Library" %}</a>
+                {% else %}
+                    <a href="{% url 'client-home' %}">{% translate "Home" %}</a>
+                    <a href="{% url 'my-workout-plan' %}">{% translate "Training" %}</a>
+                    <a href="{% url 'my-nutrition-plan' %}">{% translate "Nutrition" %}</a>
+                    <a href="{% url 'my-progress' %}">{% translate "Progress" %}</a>
+                    <a href="{% url 'my-checkins' %}">{% translate "Check-ins" %}</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+
+        <div class="topbar__tools">
+            <form method="post" action="{% url 'set_language' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <label class="visually-hidden" for="language-select">{% translate "Language" %}</label>
+                <select class="select" id="language-select" name="language" onchange="this.form.submit()">
+                    {% get_current_language as current_language %}
+                    {% get_available_languages as available_languages %}
+                    {% for code, name in available_languages %}
+                        <option value="{{ code }}" {% if code == current_language %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <noscript><button class="btn btn--ghost" type="submit">{% translate "Go" %}</button></noscript>
+            </form>
+
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="btn btn--ghost" type="submit">{% translate "Log out" %}</button>
+                </form>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="shell">
+        {% if messages %}
+            <ul class="flash">
+                {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

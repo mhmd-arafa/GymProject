@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Check-ins" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Check-ins" %}</h1>
+</div>
+
+{% for checkin in checkins %}
+    <div class="panel">
+        <div class="panel__head">
+            <h2>{{ checkin.due_date }}</h2>
+            <span class="quiet">
+                {% if checkin.is_submitted %}
+                    {% if checkin.trainer_reply %}
+                        {% translate "answered" %}
+                    {% else %}
+                        {% translate "waiting on your coach" %}
+                    {% endif %}
+                {% elif checkin.is_overdue %}
+                    {% translate "overdue" %}
+                {% else %}
+                    {% translate "not sent yet" %}
+                {% endif %}
+            </span>
+        </div>
+
+        {% if checkin.is_submitted %}
+            <div class="ratings">
+                {% if checkin.weight_kg %}
+                    <div>
+                        <span class="rating__label">{% translate "Weight" %}</span>
+                        <span class="stat__value">{{ checkin.weight_kg|trim_decimal }}<small> kg</small></span>
+                    </div>
+                {% endif %}
+                <div>
+                    <span class="rating__label">{% translate "Energy" %}</span>
+                    <span class="rating__stars">{{ checkin.energy_rating|rating_stars }}</span>
+                </div>
+                <div>
+                    <span class="rating__label">{% translate "Sleep" %}</span>
+                    <span class="rating__stars">{{ checkin.sleep_rating|rating_stars }}</span>
+                </div>
+                <div>
+                    <span class="rating__label">{% translate "Plan" %}</span>
+                    <span class="rating__stars">{{ checkin.adherence_rating|rating_stars }}</span>
+                </div>
+            </div>
+
+            {% if checkin.photos.all %}
+                <div class="shots">
+                    {% for photo in checkin.photos.all %}
+                        <figure class="shot" style="margin:0">
+                            <img src="{{ photo.image.url }}" alt="{{ photo.get_pose_display }}">
+                            <figcaption class="shot__caption">
+                                <span>{{ photo.get_pose_display }}</span>
+                            </figcaption>
+                        </figure>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if checkin.trainer_reply %}
+                <blockquote class="quote">
+                    <span class="rating__label">{% translate "Your coach" %}</span>
+                    <p>{{ checkin.trainer_reply|linebreaksbr }}</p>
+                </blockquote>
+            {% endif %}
+
+            <div class="form-actions">
+                <a class="btn btn--ghost" href="{% url 'checkin-submit' checkin.pk %}">{% translate "Edit" %}</a>
+            </div>
+        {% else %}
+            <p class="quiet">
+                {% translate "Send your weight, how the week felt, and photos if you have them." %}
+            </p>
+            <div class="form-actions">
+                <a class="btn btn--primary" href="{% url 'checkin-submit' checkin.pk %}">
+                    {% translate "Fill in check-in" %}</a>
+            </div>
+        {% endif %}
+    </div>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "No check-ins scheduled" %}</h2>
+        <p>{% translate "Your coach schedules these. Ask them to set one up and it'll appear here." %}</p>
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Schedule check-in" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Schedule check-in" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "The client gets a reminder on their home screen until they send it." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Schedule" %}</button>
+        <a class="btn btn--ghost" href="{% url 'checkin-queue' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

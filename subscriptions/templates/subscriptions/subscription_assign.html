@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Assign subscription" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Assign subscription" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "Use this for cash paid in person. For transfers, approve the client's payment instead." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'subscription-list' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,24 +1,35 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>إضافة خطة تمرين</title>
-</head>
-<body>
-    <h1>خطة تمرين جديدة</h1>
+{% extends "base.html" %}
+{% load i18n %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block title %}{% translate "New workout plan" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "New plan" %}</h1>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "Plan" %}</h2></div>
+        {{ form.non_field_errors }}
         {{ form.as_p }}
+    </div>
 
-        <h2>الأيام</h2>
+    <div class="panel">
+        <div class="panel__head">
+            <h2>{% translate "Days" %}</h2>
+            <span class="quiet">{% translate "name them how you train, e.g. Push / Pull / Legs" %}</span>
+        </div>
         {{ days_formset.management_form }}
-
         {% for day_form in days_formset %}
-            <div>{{ day_form.as_p }}</div>
+            <div class="formset__row">{{ day_form.as_p }}</div>
         {% endfor %}
+    </div>
 
-        <button type="submit">حفظ</button>
-    </form>
-</body>
-</html>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save plan" %}</button>
+        <a class="btn btn--ghost" href="{% url 'client-list' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

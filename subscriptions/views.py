@@ -1,50 +1,21 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
-from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
+from django.views import View
+from django.views.generic import CreateView, ListView, TemplateView
+
 from accounts.mixins import AdminRequiredMixin
-from .models import Subscription
-from .forms import AdminSubscriptionForm, ClientSubscriptionRequestForm
 
-
-class SubscriptionListView(AdminRequiredMixin, ListView):
-    model = Subscription
-    template_name = "subscriptions/subscription_list.html"
-    context_object_name = "subscriptions"
-
-    def get_queryset(self):
-        queryset = Subscription.objects.select_related("client").all()
-        status_filter = self.request.GET.get("status")
-        if status_filter in Subscription.Status.values:
-            queryset = queryset.filter(status=status_filter)
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["current_status_filter"] = self.request.GET.get("status", "")
-        context["pending_count"] = Subscription.objects.filter(status=Subscription.Status.PENDING).count()
-        return context
-
-
-class SubscriptionCreateView(AdminRequiredMixin, CreateView):
-    model = Subscription
-    form_class = AdminSubscriptionForm
-    template_name = "subscriptions/subscription_form.html"
-    success_url = reverse_lazy("subscription-list")
-
-    def get_initial(self):
-        initial = super().get_initial()
-        client_id = self.request.GET.get("client")
-        if client_id:
-            initial["client"] = client_id
-        return initial
-
-
-class SubscriptionUpdateView(AdminRequiredMixin, UpdateView):
-    model = Subscription
-    form_class = AdminSubscriptionForm
-    template_name = "subscriptions/subscription_form.html"
-    success_url = reverse_lazy("subscription-list")
+from . import services
+from .forms import (
+    PaymentProofForm,
+    PaymentRejectForm,
+    SubscriptionAssignForm,
+    SubscriptionStartForm,
+)
+from .models import PaymentProof, Subscription, SubscriptionPlan
 
 
 class MySubscriptionView(LoginRequiredMixin, TemplateView):
@@ -52,25 +23,131 @@ class MySubscriptionView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_subscriptions = Subscription.objects.filter(client=self.request.user)
-        active_subscriptions = [sub for sub in user_subscriptions if sub.is_currently_active()]
-        
-        context["active_subscription"] = active_subscriptions[0] if active_subscriptions else None
-        context["subscriptions_history"] = user_subscriptions
+        subscriptions = list(
+            self.request.user.subscriptions.select_related("plan").prefetch_related(
+                "payment_proofs"
+            )
+        )
+        context["subscriptions"] = subscriptions
+        context["current"] = next((s for s in subscriptions if s.is_active), None)
+        context["pending"] = [
+            s for s in subscriptions if s.status == Subscription.Status.PENDING
+        ]
+        context["plans"] = SubscriptionPlan.objects.filter(is_active=True)
+        context["start_form"] = SubscriptionStartForm()
         return context
 
 
-class SubscriptionRequestView(LoginRequiredMixin, CreateView):
+class SubscriptionStartView(LoginRequiredMixin, CreateView):
+    """Client chooses a package. Activation waits on payment approval."""
+
     model = Subscription
-    form_class = ClientSubscriptionRequestForm
-    template_name = "subscriptions/subscription_request.html"
-    success_url = reverse_lazy("my-subscription")
+    form_class = SubscriptionStartForm
+    template_name = "subscriptions/subscription_start.html"
 
     def form_valid(self, form):
         form.instance.client = self.request.user
         form.instance.status = Subscription.Status.PENDING
+        self.object = form.save()
+        messages.info(
+            self.request, _("Now upload your payment details so we can activate it.")
+        )
+        return redirect("payment-proof-upload", subscription_pk=self.object.pk)
+
+
+class PaymentProofUploadView(LoginRequiredMixin, CreateView):
+    model = PaymentProof
+    form_class = PaymentProofForm
+    template_name = "subscriptions/payment_proof_form.html"
+    success_url = reverse_lazy("my-subscription")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            self.subscription = get_object_or_404(
+                Subscription,
+                pk=kwargs["subscription_pk"],
+                client=request.user,
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["subscription"] = self.subscription
+        return context
+
+    def form_valid(self, form):
+        form.instance.subscription = self.subscription
+        messages.success(
+            self.request, _("Payment details sent. Your coach will confirm shortly.")
+        )
         return super().form_valid(form)
 
 
-class NoActiveSubscriptionView(LoginRequiredMixin, TemplateView):
-    template_name = "subscriptions/no_active_subscription.html"
+class PaymentReviewQueueView(AdminRequiredMixin, ListView):
+    template_name = "subscriptions/payment_queue.html"
+    context_object_name = "proofs"
+
+    def get_queryset(self):
+        return (
+            PaymentProof.objects.filter(status=PaymentProof.Status.PENDING)
+            .select_related("subscription__client", "subscription__plan")
+            .order_by("submitted_at")
+        )
+
+
+class PaymentApproveView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        proof = get_object_or_404(PaymentProof, pk=pk)
+        subscription = services.approve_payment(proof, request.user)
+        messages.success(
+            request,
+            _("Approved. %(client)s is active until %(end)s.")
+            % {
+                "client": subscription.client.username,
+                "end": subscription.end_date,
+            },
+        )
+        return redirect("payment-queue")
+
+
+class PaymentRejectView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        proof = get_object_or_404(PaymentProof, pk=pk)
+        form = PaymentRejectForm(request.POST)
+        reason = form.cleaned_data["rejection_reason"] if form.is_valid() else ""
+        services.reject_payment(proof, request.user, reason=reason)
+        messages.warning(request, _("Payment rejected."))
+        return redirect("payment-queue")
+
+
+class SubscriptionListView(AdminRequiredMixin, ListView):
+    template_name = "subscriptions/subscription_list.html"
+    context_object_name = "subscriptions"
+
+    def get_queryset(self):
+        services.expire_overdue_subscriptions()
+        return Subscription.objects.select_related("client", "plan")
+
+
+class SubscriptionAssignView(AdminRequiredMixin, CreateView):
+    model = Subscription
+    form_class = SubscriptionAssignForm
+    template_name = "subscriptions/subscription_assign.html"
+    success_url = reverse_lazy("subscription-list")
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Subscription saved."))
+        return super().form_valid(form)
+
+
+class SubscriptionPlanListView(AdminRequiredMixin, ListView):
+    model = SubscriptionPlan
+    template_name = "subscriptions/plan_list.html"
+    context_object_name = "plans"
+
+
+class SubscriptionPlanCreateView(AdminRequiredMixin, CreateView):
+    model = SubscriptionPlan
+    template_name = "subscriptions/plan_form.html"
+    fields = ["name", "duration_days", "price_egp", "description", "is_active"]
+    success_url = reverse_lazy("subscription-plan-list")

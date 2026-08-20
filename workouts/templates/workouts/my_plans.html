@@ -1,32 +1,89 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>خطتي</title>
-</head>
-<body>
-    <h1>خطط التمرين بتاعتي</h1>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    {% for plan in plans %}
-        <h2>{{ plan.title }}</h2>
+{% block title %}{% translate "Training" %}{% endblock %}
 
-        {% for day in plan.days.all %}
-            <h3>{{ day.day_name }}</h3>
-            <ul>
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Training" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'workout-history' %}">{% translate "History" %}</a>
+    </div>
+</div>
+
+{% if active_session %}
+    <section class="queue" aria-label="{% translate 'In progress' %}">
+        <ul class="queue__list">
+            <li class="item item--act">
+                <div>
+                    <span class="item__who">{% translate "Workout in progress" %}</span>
+                    <p class="item__what">
+                        {% if active_session.day %}{{ active_session.day.day_name }}{% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    <a class="btn btn--primary" href="{% url 'workout-session' active_session.pk %}">
+                        {% translate "Continue" %}</a>
+                </div>
+            </li>
+        </ul>
+    </section>
+{% endif %}
+
+{% for plan in plans %}
+    <div class="page-head">
+        <h2 style="font-size:var(--step-2)">{{ plan.title }}</h2>
+        <div class="page-head__actions">
+            <a class="btn btn--ghost" href="{% url 'workout-plan-print' plan.pk %}">{% translate "Print" %}</a>
+        </div>
+    </div>
+    {% if plan.description %}<p class="quiet">{{ plan.description }}</p>{% endif %}
+
+    {% for day in plan.days.all %}
+        <div class="lift">
+            <div class="lift__head">
+                <span class="lift__index">{{ forloop.counter|stringformat:"02d" }}</span>
+                <div style="flex:1">
+                    <h3 class="lift__name" style="font-size:var(--step-1)">{{ day.day_name }}</h3>
+                    <p class="lift__prescription">
+                        {% blocktranslate count counter=day.exercises.count %}{{ counter }} exercise{% plural %}{{ counter }} exercises{% endblocktranslate %}
+                    </p>
+                </div>
+                <form method="post" action="{% url 'session-start' day.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn--primary" type="submit">{% translate "Start" %}</button>
+                </form>
+            </div>
+
+            <ul class="list" style="margin-block-start:var(--gap-2)">
                 {% for exercise in day.exercises.all %}
-                    <li>{{ exercise.name }} — {{ exercise.sets }} sets x {{ exercise.reps }} reps
-                        {% if exercise.notes %} ({{ exercise.notes }}){% endif %}
+                    <li>
+                        <span class="list__lead">
+                            {% if exercise.catalog_exercise %}
+                                <a href="{% url 'exercise-history' exercise.catalog_exercise.slug %}">{{ exercise.name }}</a>
+                            {% else %}
+                                {{ exercise.name }}
+                            {% endif %}
+                        </span>
+                        <span class="list__meta">
+                            {{ exercise.sets }} × {{ exercise.rep_range_display }}
+                            {% if exercise.target_weight_kg %} @ {{ exercise.target_weight_kg|trim_decimal }}kg{% endif %}
+                            {% if exercise.rest_seconds %} · {{ exercise.rest_seconds }}s{% endif %}
+                        </span>
+                        {% if exercise.notes %}<span class="list__meta">{{ exercise.notes }}</span>{% endif %}
                     </li>
                 {% empty %}
-                    <li>لا يوجد تمارين في اليوم ده لسه</li>
+                    <li class="quiet">{% translate "No exercises in this day yet." %}</li>
                 {% endfor %}
             </ul>
-        {% empty %}
-            <p>لا يوجد أيام في الخطة دي لسه</p>
-        {% endfor %}
-
+        </div>
     {% empty %}
-        <p>لسه معندكش خطة تمرين. تواصل مع مدربك.</p>
+        <p class="quiet">{% translate "No days in this plan yet." %}</p>
     {% endfor %}
-</body>
-</html>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "No plan yet" %}</h2>
+        <p>{% translate "Your coach assigns your plan. It'll show up here the moment they do." %}</p>
+    </div>
+{% endfor %}
+{% endblock %}

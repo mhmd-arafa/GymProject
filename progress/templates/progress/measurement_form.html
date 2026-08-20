@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Add measurements" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Measurements" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "Tape measurements catch what the scale misses. Waist is the single most useful one." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-progress' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}
