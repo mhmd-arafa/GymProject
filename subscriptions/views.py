@@ -38,6 +38,12 @@ class MySubscriptionView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class NoActiveSubscriptionView(LoginRequiredMixin, TemplateView):
+    """Where ActiveSubscriptionRequiredMixin sends clients whose access has lapsed."""
+
+    template_name = "subscriptions/no_active_subscription.html"
+
+
 class SubscriptionStartView(LoginRequiredMixin, CreateView):
     """Client chooses a package. Activation waits on payment approval."""
 

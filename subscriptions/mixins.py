@@ -22,7 +22,7 @@ class ActiveSubscriptionRequiredMixin(LoginRequiredMixin):
             client=request.user,
             status=Subscription.Status.ACTIVE,
         )
-        has_active = any(sub.is_currently_active() for sub in active_subs)
+        has_active = any(sub.is_active for sub in active_subs)
 
         if not has_active:
             return redirect(self.no_active_subscription_url)

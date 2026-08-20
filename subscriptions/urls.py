@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     MySubscriptionView,
+    NoActiveSubscriptionView,
     PaymentApproveView,
     PaymentProofUploadView,
     PaymentRejectView,
@@ -16,6 +17,11 @@ from .views import (
 urlpatterns = [
     path("me/", MySubscriptionView.as_view(), name="my-subscription"),
     path("start/", SubscriptionStartView.as_view(), name="subscription-start"),
+    path(
+        "inactive-notice/",
+        NoActiveSubscriptionView.as_view(),
+        name="no-active-subscription",
+    ),
     path(
         "<int:subscription_pk>/payment-proof/",
         PaymentProofUploadView.as_view(),

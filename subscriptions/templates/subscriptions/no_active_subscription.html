@@ -1,20 +1,22 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>الاشتراك غير نشط</title>
-</head>
-<body>
-    <h1>عفواً، لا يمكنك الوصول لهذه الصفحة</h1>
+{% extends "base.html" %}
+{% load i18n %}
 
+{% block title %}{% translate "Subscription needed" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Subscription needed" %}</h1>
+</div>
+
+<div class="allclear">
+    <h2>{% translate "This page needs an active subscription" %}</h2>
     <p>
-        يتطلب عرض خطط التمارين والتغذية وتتبع الوزن وجود اشتراك نشط وساري المفعول.
-        يرجى التواصل مع المدرب أو طلب تجديد اشتراكك لتفعيل الوصول إلى خططك الشخصية.
+        {% translate "Training plans, nutrition plans and progress tracking open up once your subscription is active. Send your payment details and your coach will approve it." %}
     </p>
+</div>
 
-    <ul>
-        <li><a href="{% url 'my-subscription' %}">عرض حالة اشتراكي / طلب تجديد</a></li>
-        <li><a href="{% url 'client-home' %}">العودة للرئيسية</a></li>
-    </ul>
-</body>
-</html>
+<div class="item__actions">
+    <a class="btn btn--primary" href="{% url 'my-subscription' %}">{% translate "View my subscription" %}</a>
+    <a class="btn btn--ghost" href="{% url 'client-home' %}">{% translate "Back home" %}</a>
+</div>
+{% endblock %}

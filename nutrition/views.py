@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from accounts.mixins import AdminRequiredMixin
+from subscriptions.mixins import ActiveSubscriptionRequiredMixin
 
 from .forms import (
     FoodItemForm,

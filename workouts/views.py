@@ -11,6 +11,7 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from accounts.mixins import AdminRequiredMixin
 from accounts.models import User
+from subscriptions.mixins import ActiveSubscriptionRequiredMixin
 
 from . import services
 from .forms import (
