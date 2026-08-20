@@ -1,20 +1,45 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>العملاء</title>
-</head>
-<body>
-    <h1>قائمة العملاء</h1>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    <ul>
+{% block title %}{% translate "Clients" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Clients" %}</h1>
+    <p class="board-head__count"><b>{{ clients|length }}</b> {% translate "total" %}</p>
+</div>
+
+<section class="queue">
+    <ul class="queue__list">
         {% for client in clients %}
-            <li>
-                <a href="{% url 'client-detail' client.pk %}">{{ client.username }}</a> - {{ client.email }}
+            <li class="item {% if not client.plan_count %}item--act{% endif %}">
+                <div>
+                    <a class="item__who" href="{% url 'client-detail' client.pk %}">
+                        {{ client.get_full_name|default:client.username }}</a>
+                    <p class="item__what">
+                        {% if client.plan_count %}
+                            {% blocktranslate count counter=client.plan_count %}{{ counter }} plan{% plural %}{{ counter }} plans{% endblocktranslate %}
+                        {% else %}
+                            {% translate "no plan yet" %}
+                        {% endif %}
+                        · {% blocktranslate count counter=client.session_count %}{{ counter }} session{% plural %}{{ counter }} sessions{% endblocktranslate %}
+                        {% if client.phone %}· {{ client.phone }}{% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    {% whatsapp_url client.phone as wa %}
+                    {% if wa %}
+                        <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">{% translate "WhatsApp" %}</a>
+                    {% endif %}
+                    <a class="btn btn--ghost" href="{% url 'client-progress' client.pk %}">{% translate "Progress" %}</a>
+                </div>
             </li>
         {% empty %}
-            <li>لا يوجد عملاء حالياً</li>
+            <li class="item">
+                <div><p class="item__what">{% translate "No clients yet. They register themselves, then appear here." %}</p></div>
+                <div></div>
+            </li>
         {% endfor %}
     </ul>
-</body>
-</html>
+</section>
+{% endblock %}

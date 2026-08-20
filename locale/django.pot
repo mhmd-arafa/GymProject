@@ -1,0 +1,2426 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: workouts/templates/workouts/template_form.html
+msgid "A template has no client. Assign it after you add the exercises."
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Active"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: workouts/templates/workouts/session_history.html
+msgid "Ad-hoc"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog.html
+#: workouts/templates/workouts/exercise_catalog_form.html
+msgid "Add exercise"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog_form.html
+msgid "Add exercise to library"
+msgstr ""
+
+#: workouts/templates/workouts/add_exercises.html
+msgid "Add exercises"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_form.html
+#: nutrition/templates/nutrition/food_list.html
+msgid "Add food"
+msgstr ""
+
+#: progress/templates/progress/measurement_form.html
+#: progress/templates/progress/my_progress.html
+msgid "Add measurements"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Add photo"
+msgstr ""
+
+#: progress/templates/progress/photo_form.html
+msgid "Add progress photo"
+msgstr ""
+
+#: subscriptions/forms.py
+msgid "Add the transfer reference number or upload a screenshot."
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Adherence"
+msgstr ""
+
+#: accounts/models.py
+msgid "Admin"
+msgstr ""
+
+#: progress/templates/progress/partials/comparison_slider.html
+msgid "After, {{ date }}"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Against target"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "Against your target"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "All"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "All caught up."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "All clients have completed intake."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Allergies"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Alternatives:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Amount"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Approve and activate"
+msgstr ""
+
+#: subscriptions/admin.py
+msgid "Approve payment and activate subscription"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Approved"
+msgstr ""
+
+#: subscriptions/admin.py
+msgid "Approved %(count)d payment(s)."
+msgstr ""
+
+#: subscriptions/views.py
+msgid "Approved. %(client)s is active until %(end)s."
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Arm"
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "Assign"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_assign.html
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Assign a subscription"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Assign a template"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Assign one"
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "Assign to"
+msgstr ""
+
+#: workouts/views.py
+msgid "Assigned “%(title)s” to %(client)s."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "Available packages"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Awaiting payment"
+msgstr ""
+
+#: progress/models.py
+#: workouts/models.py
+msgid "Back"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "Back to client"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Back to clients"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Bank transfer"
+msgstr ""
+
+#: workouts/models.py
+msgid "Barbell"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Before and after"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Before bed"
+msgstr ""
+
+#: progress/templates/progress/partials/comparison_slider.html
+msgid "Before, {{ date }}"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "Best est. 1RM"
+msgstr ""
+
+#: workouts/models.py
+msgid "Best estimated 1RM"
+msgstr ""
+
+#: workouts/models.py
+msgid "Best single-set volume"
+msgstr ""
+
+#: workouts/models.py
+msgid "Biceps"
+msgstr ""
+
+#: accounts/models.py
+msgid "Body recomposition"
+msgstr ""
+
+#: workouts/models.py
+msgid "Bodyweight"
+msgstr ""
+
+#: accounts/models.py
+msgid "Bodyweight only"
+msgstr ""
+
+#: workouts/models.py
+msgid "Bottom of the target rep range."
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "Build a plan once, then assign it to any client in seconds."
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Build from foods"
+msgstr ""
+
+#: nutrition/templates/nutrition/meal_food_items.html
+msgid "Build meal from foods"
+msgstr ""
+
+#: accounts/models.py
+msgid "Build muscle"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "C"
+msgstr ""
+
+#: workouts/models.py
+msgid "Cable"
+msgstr ""
+
+#: nutrition/models.py
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Calories"
+msgstr ""
+
+#: workouts/models.py
+msgid "Calves"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Cancelled"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Carbohydrate"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Carbs"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Carbs (g)"
+msgstr ""
+
+#: workouts/models.py
+msgid "Cardio"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Cash in person"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "Category"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Change"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Check in on WhatsApp"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "Check-in due {{ due }}"
+msgstr ""
+
+#: progress/templates/progress/checkin_form.html
+msgid "Check-in for {{ due }}"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Check-in from {{ name }}"
+msgstr ""
+
+#: progress/templates/progress/checkin_queue.html
+msgid "Check-in queue"
+msgstr ""
+
+#: progress/views.py
+msgid "Check-in scheduled."
+msgstr ""
+
+#: progress/views.py
+msgid "Check-in sent to your coach."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_checkins.html
+#: templates/base.html
+msgid "Check-ins"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+msgid "Check-ins to reply to"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+#: workouts/models.py
+msgid "Chest"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_start.html
+msgid "Choose a package"
+msgstr ""
+
+#: accounts/models.py
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Client"
+msgstr ""
+
+#: progress/templates/progress/public_results.html
+msgid "Client results"
+msgstr ""
+
+#: accounts/templates/accounts/client_list.html
+#: templates/base.html
+msgid "Clients"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Coach dashboard"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "Coach:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_start.html
+msgid "Continue to payment"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+#: workouts/templates/workouts/my_plans.html
+msgid "Continue your workout"
+msgstr ""
+
+#: workouts/models.py
+msgid "Core"
+msgstr ""
+
+#: workouts/views.py
+msgid "Could not finish the session."
+msgstr ""
+
+#: workouts/views.py
+msgid "Could not save that set. Check the numbers."
+msgstr ""
+
+#: workouts/templates/workouts/partials/set_form_errors.html
+msgid "Could not save that set:"
+msgstr ""
+
+#: accounts/views.py
+msgid "Could not save the note."
+msgstr ""
+
+#: accounts/templates/accounts/login.html
+#: accounts/templates/accounts/register.html
+msgid "Create an account"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Create one"
+msgstr ""
+
+#: nutrition/templates/nutrition/meal_food_items.html
+msgid "Current totals"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Daily total"
+msgstr ""
+
+#: accounts/templatetags/gym_extras.py
+msgid "Daily total: %(calories)s kcal, protein %(protein)sg"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Dairy"
+msgstr ""
+
+#: templates/base.html
+msgid "Dashboard"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+#: workouts/templates/workouts/exercise_history.html
+msgid "Date"
+msgstr ""
+
+#: workouts/templates/workouts/plan_form.html
+#: workouts/templates/workouts/template_form.html
+msgid "Days"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Days left"
+msgstr ""
+
+#: workouts/models.py
+msgid "Denormalised so history survives the plan being deleted."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Difference"
+msgstr ""
+
+#: progress/templates/progress/partials/comparison_slider.html
+msgid "Drag to compare {{ before }} with {{ after }}"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Drink"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Due"
+msgstr ""
+
+#: workouts/models.py
+msgid "Dumbbell"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "Edit"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+#: accounts/templates/accounts/profile_form.html
+msgid "Edit profile"
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "Effort"
+msgstr ""
+
+#: accounts/forms.py
+#: accounts/models.py
+msgid "Egyptian mobile, e.g. 01012345678. Used for WhatsApp."
+msgstr ""
+
+#: nutrition/models.py
+msgid "Egyptian staple"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "Egyptian staples only"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Email"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "End"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Energy"
+msgstr ""
+
+#: nutrition/templates/nutrition/meal_food_items.html
+msgid "Enter grams; macros are calculated from the food database."
+msgstr ""
+
+#: nutrition/templates/nutrition/food_form.html
+msgid "Enter macros per 100g."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Equipment"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Everyone has a plan."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Everyone is training."
+msgstr ""
+
+#: workouts/templates/workouts/plan_print.html
+msgid "Exercise"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: templates/base.html
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "Exercise library"
+msgstr ""
+
+#: workouts/templates/workouts/add_exercises.html
+msgid "Exercises for {{ day }}"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Expired"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "F"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Fat"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Fats"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Fats (g)"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "Fill in"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "Fill in now"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "Fill in your intake questionnaire"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "Filter"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Finish session"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Finish workout"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "First time logging this one."
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "Food"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: nutrition/templates/nutrition/food_list.html
+msgid "Food database"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Food dislikes"
+msgstr ""
+
+#: nutrition/templates/nutrition/meal_food_items.html
+msgid "Foods in {{ name }}"
+msgstr ""
+
+#: progress/models.py
+msgid "Front"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Fruit"
+msgstr ""
+
+#: workouts/models.py
+msgid "Full body"
+msgstr ""
+
+#: accounts/models.py
+msgid "Full gym"
+msgstr ""
+
+#: accounts/models.py
+msgid "General fitness"
+msgstr ""
+
+#: accounts/models.py
+msgid "Get stronger"
+msgstr ""
+
+#: workouts/models.py
+msgid "Glutes"
+msgstr ""
+
+#: templates/base.html
+msgid "Go"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Goal"
+msgstr ""
+
+#: templates/base.html
+msgid "Gym Coach"
+msgstr ""
+
+#: workouts/models.py
+msgid "Hamstrings"
+msgstr ""
+
+#: workouts/models.py
+msgid "Heaviest weight"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Hip"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "History"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "History for {{ name }}"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+#: templates/base.html
+msgid "Home"
+msgstr ""
+
+#: accounts/models.py
+msgid "Home — dumbbells / bands"
+msgstr ""
+
+#: progress/models.py
+msgid "I allow my coach to share this photo publicly"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Injuries"
+msgstr ""
+
+#: accounts/forms.py
+msgid "Injuries, allergies, personality notes…"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "InstaPay"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Intake"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Intake form not filled in"
+msgstr ""
+
+#: accounts/templates/accounts/intake_form.html
+msgid "Intake questionnaire"
+msgstr ""
+
+#: workouts/models.py
+msgid "Kettlebell"
+msgstr ""
+
+#: templates/base.html
+msgid "Language"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Last time:"
+msgstr ""
+
+#: workouts/models.py
+msgid "Link to the library to unlock history, charts and records."
+msgstr ""
+
+#: workouts/forms.py
+msgid "Log at least one rep."
+msgstr ""
+
+#: accounts/templates/accounts/login.html
+msgid "Log in"
+msgstr ""
+
+#: templates/base.html
+msgid "Log out"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Log set"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Log workout"
+msgstr ""
+
+#: accounts/models.py
+msgid "Lose fat"
+msgstr ""
+
+#: workouts/models.py
+msgid "Machine"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Macro"
+msgstr ""
+
+#: nutrition/templates/nutrition/macro_target_form.html
+msgid "Macro target"
+msgstr ""
+
+#: nutrition/views.py
+msgid "Macros recalculated: %(calories)s kcal."
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Meal"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+#: nutrition/templates/nutrition/plan_form.html
+msgid "Meals"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_progress.html
+msgid "Measurements"
+msgstr ""
+
+#: progress/views.py
+msgid "Measurements saved."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Message on WhatsApp"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Method"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Morning"
+msgstr ""
+
+#: workouts/models.py
+msgid "Most reps"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "Muscle group"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "My check-ins"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: templates/base.html
+msgid "My nutrition"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "My nutrition plans"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+#: templates/base.html
+msgid "My progress"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "My subscription"
+msgstr ""
+
+#: workouts/templates/workouts/my_plans.html
+msgid "My workout plans"
+msgstr ""
+
+#: templates/base.html
+#: workouts/templates/workouts/my_plans.html
+msgid "My workouts"
+msgstr ""
+
+#: workouts/views.py
+msgid "New best on %(exercise)s: %(type)s %(value)s 💪"
+msgstr ""
+
+#: workouts/templates/workouts/partials/set_row.html
+msgid "New best — {{ type }} 💪"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: nutrition/templates/nutrition/plan_form.html
+msgid "New nutrition plan"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/plan_form.html
+#: subscriptions/templates/subscriptions/plan_list.html
+msgid "New package"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: workouts/templates/workouts/template_form.html
+msgid "New plan template"
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "New template"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: workouts/templates/workouts/plan_form.html
+msgid "New workout plan"
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "Next"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "No check-ins scheduled yet."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No check-ins scheduled."
+msgstr ""
+
+#: accounts/templates/accounts/client_list.html
+msgid "No clients yet."
+msgstr ""
+
+#: workouts/templates/workouts/my_plans.html
+msgid "No days in this plan yet."
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "No days yet."
+msgstr ""
+
+#: workouts/templates/workouts/my_plans.html
+msgid "No exercises in this day yet."
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "No exercises match."
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "No foods match."
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "No history for this exercise yet."
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "No macro target set for this plan."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "No meals in this plan yet."
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "No meals yet."
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_progress.html
+msgid "No measurements yet."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No notes yet."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No nutrition plan."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "No packages available."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/plan_list.html
+msgid "No packages yet."
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_progress.html
+msgid "No photos yet."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "No renewals due."
+msgstr ""
+
+#: progress/templates/progress/public_results.html
+msgid "No results have been shared yet."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No sessions logged yet."
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "No sessions yet."
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "No sets logged."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No subscription yet."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "No subscriptions yet."
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "No templates yet."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "No workout logged in {{ days }} days"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "No workout plan assigned"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "No workout plan yet. Talk to your coach."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "No workout plan."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "None overdue."
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "None yet."
+msgstr ""
+
+#: progress/templates/progress/partials/line_chart.html
+msgid "Not enough data to chart yet."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Note"
+msgstr ""
+
+#: accounts/views.py
+msgid "Note saved. Only you can see it."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: nutrition/templates/nutrition/plan_print.html
+#: workouts/templates/workouts/plan_print.html
+msgid "Notes"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Nothing waiting."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "Nothing yet."
+msgstr ""
+
+#: subscriptions/views.py
+msgid "Now upload your payment details so we can activate it."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Nutrition plans"
+msgstr ""
+
+#: progress/models.py
+msgid "Off by default. Only photos you tick here can appear on the public results page. You can withdraw this at any time."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Only you can see these. The client never does."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "Or instead:"
+msgstr ""
+
+#: nutrition/models.py
+#: workouts/models.py
+msgid "Other"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Overdue check-ins"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "P"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Package"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: subscriptions/templates/subscriptions/plan_list.html
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Packages"
+msgstr ""
+
+#: subscriptions/views.py
+msgid "Payment details sent. Your coach will confirm shortly."
+msgstr ""
+
+#: subscriptions/views.py
+msgid "Payment rejected."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Payments awaiting approval"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Payments to review"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Pending review"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: progress/templates/progress/my_progress.html
+#: workouts/templates/workouts/exercise_history.html
+#: workouts/templates/workouts/session_history.html
+msgid "Personal records"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Phone"
+msgstr ""
+
+#: progress/templates/progress/photo_consent_form.html
+msgid "Photo sharing consent"
+msgstr ""
+
+#: progress/views.py
+msgid "Photo uploaded."
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_progress.html
+msgid "Photos"
+msgstr ""
+
+#: workouts/forms.py
+msgid "Pick an exercise from the library or type a name."
+msgstr ""
+
+#: accounts/forms.py
+msgid "Pick between 1 and 7 days."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Plan"
+msgstr ""
+
+#: templates/base.html
+#: workouts/templates/workouts/template_list.html
+msgid "Plan templates"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Plans"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Post-workout"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Pre-workout"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Prepared dish"
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "Previous"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+#: workouts/templates/workouts/plan_print.html
+msgid "Print"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+#: workouts/templates/workouts/my_plans.html
+msgid "Print / PDF"
+msgstr ""
+
+#: accounts/forms.py
+msgid "Private note (client never sees this)"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Private notes"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Private."
+msgstr ""
+
+#: accounts/views.py
+msgid "Profile updated."
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "Progress — {{ name }}"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Progression suggestions"
+msgstr ""
+
+#: nutrition/models.py
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Protein"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Protein (g)"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Public results page"
+msgstr ""
+
+#: workouts/models.py
+msgid "Quadriceps"
+msgstr ""
+
+#: workouts/models.py
+#: workouts/templates/workouts/session.html
+msgid "RPE"
+msgstr ""
+
+#: workouts/models.py
+msgid "Rate of perceived exertion, 1-10."
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Recent measurements"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Recent sessions"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Reference"
+msgstr ""
+
+#: accounts/templates/accounts/register.html
+msgid "Register"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Reject"
+msgstr ""
+
+#: subscriptions/admin.py
+msgid "Reject payment"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Rejected"
+msgstr ""
+
+#: subscriptions/admin.py
+msgid "Rejected."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Rejection reason"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+msgid "Reply"
+msgstr ""
+
+#: progress/views.py
+msgid "Reply saved."
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Reply to check-in"
+msgstr ""
+
+#: workouts/templates/workouts/plan_print.html
+#: workouts/templates/workouts/session.html
+msgid "Reps"
+msgstr ""
+
+#: workouts/models.py
+msgid "Resistance band"
+msgstr ""
+
+#: workouts/templates/workouts/plan_print.html
+msgid "Rest"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Rest timer"
+msgstr ""
+
+#: progress/templates/progress/public_results.html
+msgid "Results"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Review"
+msgstr ""
+
+#: accounts/templates/accounts/profile_form.html
+#: nutrition/templates/nutrition/food_form.html
+#: nutrition/templates/nutrition/macro_target_form.html
+#: nutrition/templates/nutrition/plan_form.html
+#: nutrition/templates/nutrition/supplement_schedule.html
+#: progress/templates/progress/measurement_form.html
+#: progress/templates/progress/photo_consent_form.html
+#: subscriptions/templates/subscriptions/plan_form.html
+#: subscriptions/templates/subscriptions/subscription_assign.html
+#: workouts/templates/workouts/exercise_catalog_form.html
+#: workouts/templates/workouts/plan_form.html
+msgid "Save"
+msgstr ""
+
+#: nutrition/templates/nutrition/meal_food_items.html
+msgid "Save and recalculate"
+msgstr ""
+
+#: workouts/templates/workouts/add_exercises.html
+msgid "Save exercises"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Save note"
+msgstr ""
+
+#: workouts/templates/workouts/template_form.html
+msgid "Save template"
+msgstr ""
+
+#: progress/templates/progress/checkin_schedule.html
+msgid "Schedule"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+#: progress/templates/progress/checkin_schedule.html
+msgid "Schedule a check-in"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Schedule one"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "Search"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "See full progress"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_proof_form.html
+msgid "Send for approval"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Send reply"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_proof_form.html
+msgid "Send the transfer, then give us the reference number or a screenshot. Your coach will confirm and activate your subscription."
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Send to WhatsApp"
+msgstr ""
+
+#: accounts/templates/accounts/intake_form.html
+#: progress/templates/progress/checkin_form.html
+msgid "Send to my coach"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "Session by session"
+msgstr ""
+
+#: workouts/views.py
+msgid "Session logged. Well done."
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "Session volume"
+msgstr ""
+
+#: workouts/views.py
+msgid "Session volume (kg)"
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "Sessions"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Set macro target"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Set this to offer the meal as a swap for another meal."
+msgstr ""
+
+#: workouts/templates/workouts/partials/set_row.html
+msgid "Set {{ number }}"
+msgstr ""
+
+#: workouts/templates/workouts/plan_print.html
+msgid "Sets"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Shared publicly — you allowed this."
+msgstr ""
+
+#: progress/templates/progress/public_results.html
+msgid "Shared with each client's explicit permission."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Shortcuts"
+msgstr ""
+
+#: workouts/models.py
+msgid "Shoulders"
+msgstr ""
+
+#: progress/models.py
+msgid "Side"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Sleep"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Start"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+#: workouts/templates/workouts/my_plans.html
+msgid "Start this workout"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Started {{ started }}"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Status"
+msgstr ""
+
+#: workouts/templates/workouts/session_history.html
+msgid "Still in progress — continue"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Stop"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "Submitted"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+#: subscriptions/templates/subscriptions/subscription_start.html
+msgid "Subscribe"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: accounts/templates/accounts/client_home.html
+#: templates/base.html
+msgid "Subscription"
+msgstr ""
+
+#: subscriptions/views.py
+msgid "Subscription saved."
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: subscriptions/templates/subscriptions/subscription_list.html
+msgid "Subscriptions"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Subscriptions expiring in {{ days }} days"
+msgstr ""
+
+#: nutrition/templates/nutrition/supplement_schedule.html
+msgid "Supplement schedule"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Supplements"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "Target"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+msgid "Target: {{ kcal }} kcal · water {{ water }}ml"
+msgstr ""
+
+#: workouts/views.py
+msgid "Template “%(title)s” saved. Add exercises to each day, then clone it."
+msgstr ""
+
+#: workouts/models.py
+msgid "Templates have no client and can be cloned onto any client."
+msgstr ""
+
+#: accounts/views.py
+msgid "Thanks — your coach has what they need."
+msgstr ""
+
+#: workouts/forms.py
+msgid "The top of the rep range cannot be below the bottom."
+msgstr ""
+
+#: subscriptions/models.py
+msgid "The transaction reference shown in your transfer receipt."
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+msgid "Their note"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Thigh"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "This client has not filled in the intake questionnaire yet."
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "This day has no exercises yet. Ask your coach to add some."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "This plan does not hit the target yet."
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_detail.html
+msgid "This plan misses the target — adjust the meals."
+msgstr ""
+
+#: accounts/templates/accounts/intake_form.html
+msgid "This tells your coach what to build before writing your plan."
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "This week"
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "Title (optional)"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "Today's workout"
+msgstr ""
+
+#: workouts/models.py
+msgid "Top of the target rep range. Leave empty for a fixed rep count."
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "Top set"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+#: workouts/views.py
+msgid "Top set (kg)"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Training"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Training days available"
+msgstr ""
+
+#: workouts/models.py
+msgid "Triceps"
+msgstr ""
+
+#: workouts/templates/workouts/partials/set_row.html
+msgid "Undo"
+msgstr ""
+
+#: progress/templates/progress/photo_form.html
+msgid "Upload"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+#: subscriptions/templates/subscriptions/payment_proof_form.html
+msgid "Upload payment details"
+msgstr ""
+
+#: nutrition/models.py
+msgid "Vegetable"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "Vodafone Cash"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+msgid "Volume (kg)"
+msgstr ""
+
+#: progress/templates/progress/my_progress.html
+msgid "Waist"
+msgstr ""
+
+#: progress/views.py
+msgid "Waist (cm)"
+msgstr ""
+
+#: progress/templates/progress/my_checkins.html
+msgid "Waiting for your coach's reply."
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Warm-up set"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_history.html
+#: workouts/templates/workouts/session.html
+msgid "Watch demo"
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "Water: {{ water }}ml a day"
+msgstr ""
+
+#: progress/templates/progress/checkin_form.html
+msgid "Weekly check-in"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_progress.html
+#: workouts/templates/workouts/plan_print.html
+msgid "Weight"
+msgstr ""
+
+#: progress/views.py
+#: workouts/templates/workouts/session.html
+msgid "Weight (kg)"
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "Welcome, {{ name }}"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "WhatsApp about renewal"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "Who needs you today"
+msgstr ""
+
+#: subscriptions/forms.py
+msgid "Why are you rejecting this?"
+msgstr ""
+
+#: nutrition/models.py
+msgid "With a meal"
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "Workout"
+msgstr ""
+
+#: workouts/templates/workouts/my_plans.html
+#: workouts/templates/workouts/session_history.html
+msgid "Workout history"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "Workout plans"
+msgstr ""
+
+#: progress/templates/progress/photo_consent_form.html
+msgid "You can turn this off again at any time."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "You have no active subscription."
+msgstr ""
+
+#: nutrition/templates/nutrition/my_nutrition.html
+msgid "You have no nutrition plan yet. Talk to your coach."
+msgstr ""
+
+#: workouts/templates/workouts/my_plans.html
+msgid "You have no workout plan yet. Talk to your coach."
+msgstr ""
+
+#: workouts/templates/workouts/session.html
+msgid "You hit {{ reps }} reps on every set for two sessions — try {{ weight }}kg today."
+msgstr ""
+
+#: accounts/templates/accounts/client_home.html
+msgid "Your records"
+msgstr ""
+
+#: progress/forms.py
+msgid "Your reply to the client"
+msgstr ""
+
+#: workouts/models.py
+msgid "achieved on"
+msgstr ""
+
+#: subscriptions/models.py
+#: subscriptions/templates/subscriptions/my_subscription.html
+#: workouts/models.py
+msgid "active"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+msgid "adherence"
+msgstr ""
+
+#: nutrition/models.py
+msgid "alternative to"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "amount paid (EGP)"
+msgstr ""
+
+#: accounts/models.py
+msgid "anything else"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "arm"
+msgstr ""
+
+#: progress/models.py
+msgid "arm (cm)"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "assign a template"
+msgstr ""
+
+#: accounts/models.py
+msgid "author"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "awaiting payment approval"
+msgstr ""
+
+#: progress/models.py
+msgid "body measurement"
+msgstr ""
+
+#: progress/models.py
+msgid "body measurements"
+msgstr ""
+
+#: nutrition/models.py
+msgid "calories"
+msgstr ""
+
+#: nutrition/models.py
+msgid "calories per 100g"
+msgstr ""
+
+#: nutrition/models.py
+msgid "carbs"
+msgstr ""
+
+#: nutrition/models.py
+msgid "carbs per 100g"
+msgstr ""
+
+#: workouts/models.py
+msgid "catalog exercise"
+msgstr ""
+
+#: nutrition/models.py
+msgid "category"
+msgstr ""
+
+#: progress/models.py
+msgid "check-in"
+msgstr ""
+
+#: progress/models.py
+msgid "check-in photo"
+msgstr ""
+
+#: progress/models.py
+msgid "check-in photos"
+msgstr ""
+
+#: progress/models.py
+msgid "check-ins"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "chest"
+msgstr ""
+
+#: progress/models.py
+msgid "chest (cm)"
+msgstr ""
+
+#: accounts/models.py
+#: nutrition/models.py
+#: progress/models.py
+#: subscriptions/models.py
+#: workouts/models.py
+msgid "client"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "client allowed public sharing"
+msgstr ""
+
+#: progress/models.py
+msgid "coach reply"
+msgstr ""
+
+#: workouts/models.py
+msgid "completed at"
+msgstr ""
+
+#: progress/models.py
+msgid "consent given at"
+msgstr ""
+
+#: accounts/models.py
+#: nutrition/models.py
+#: subscriptions/models.py
+#: workouts/models.py
+msgid "created at"
+msgstr ""
+
+#: nutrition/models.py
+msgid "daily water (ml)"
+msgstr ""
+
+#: progress/models.py
+msgid "date"
+msgstr ""
+
+#: workouts/models.py
+msgid "day"
+msgstr ""
+
+#: workouts/models.py
+msgid "day name"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "days"
+msgstr ""
+
+#: subscriptions/admin.py
+msgid "days remaining"
+msgstr ""
+
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "demo"
+msgstr ""
+
+#: workouts/models.py
+msgid "demo video"
+msgstr ""
+
+#: subscriptions/models.py
+#: workouts/models.py
+msgid "description"
+msgstr ""
+
+#: nutrition/models.py
+msgid "dose"
+msgstr ""
+
+#: progress/templates/progress/checkin_queue.html
+msgid "due"
+msgstr ""
+
+#: progress/models.py
+msgid "due date"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "duration in days"
+msgstr ""
+
+#: workouts/templates/workouts/template_list.html
+msgid "edit"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "edit exercises"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "end date"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "ends"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/my_subscription.html
+msgid "ends {{ end }} ({{ days }} days left)"
+msgstr ""
+
+#: progress/models.py
+msgid "energy (1-5)"
+msgstr ""
+
+#: workouts/models.py
+msgid "equipment"
+msgstr ""
+
+#: accounts/models.py
+msgid "equipment access"
+msgstr ""
+
+#: workouts/models.py
+msgid "exercise"
+msgstr ""
+
+#: workouts/models.py
+msgid "exercise library"
+msgstr ""
+
+#: workouts/models.py
+msgid "exercise name"
+msgstr ""
+
+#: workouts/models.py
+msgid "exercises"
+msgstr ""
+
+#: nutrition/models.py
+msgid "fats"
+msgstr ""
+
+#: nutrition/models.py
+msgid "fats per 100g"
+msgstr ""
+
+#: nutrition/models.py
+msgid "food"
+msgstr ""
+
+#: accounts/models.py
+msgid "food allergies"
+msgstr ""
+
+#: nutrition/models.py
+msgid "food item"
+msgstr ""
+
+#: nutrition/models.py
+msgid "food items"
+msgstr ""
+
+#: accounts/models.py
+msgid "foods you dislike"
+msgstr ""
+
+#: progress/templates/progress/partials/line_chart.html
+msgid "from {{ low }} to {{ high }}"
+msgstr ""
+
+#: nutrition/models.py
+msgid "grams"
+msgstr ""
+
+#: progress/models.py
+msgid "hip (cm)"
+msgstr ""
+
+#: progress/models.py
+msgid "how did the week go?"
+msgstr ""
+
+#: nutrition/models.py
+msgid "in grams"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "in progress"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/plan_list.html
+#: workouts/templates/workouts/exercise_catalog.html
+msgid "inactive"
+msgstr ""
+
+#: accounts/models.py
+msgid "injuries or pain"
+msgstr ""
+
+#: workouts/models.py
+msgid "instructions"
+msgstr ""
+
+#: accounts/models.py
+msgid "intake form"
+msgstr ""
+
+#: accounts/models.py
+msgid "intake forms"
+msgstr ""
+
+#: workouts/models.py
+msgid "is a reusable template"
+msgstr ""
+
+#: nutrition/templates/nutrition/food_list.html
+msgid "kcal/100g"
+msgstr ""
+
+#: workouts/models.py
+msgid "library exercise"
+msgstr ""
+
+#: nutrition/models.py
+msgid "macro target"
+msgstr ""
+
+#: nutrition/models.py
+msgid "macro targets"
+msgstr ""
+
+#: accounts/models.py
+msgid "main goal"
+msgstr ""
+
+#: nutrition/models.py
+msgid "meal"
+msgstr ""
+
+#: nutrition/models.py
+msgid "meal food item"
+msgstr ""
+
+#: nutrition/models.py
+msgid "meal food items"
+msgstr ""
+
+#: nutrition/models.py
+msgid "meals"
+msgstr ""
+
+#: workouts/models.py
+msgid "muscle group"
+msgstr ""
+
+#: nutrition/models.py
+#: subscriptions/models.py
+#: workouts/models.py
+msgid "name"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "not submitted"
+msgstr ""
+
+#: accounts/models.py
+#: subscriptions/models.py
+msgid "note"
+msgstr ""
+
+#: nutrition/models.py
+#: progress/models.py
+#: workouts/models.py
+msgid "notes"
+msgstr ""
+
+#: nutrition/models.py
+msgid "nutrition plan"
+msgstr ""
+
+#: nutrition/models.py
+msgid "nutrition plans"
+msgstr ""
+
+#: nutrition/templates/nutrition/plan_print.html
+msgid "or"
+msgstr ""
+
+#: workouts/models.py
+msgid "order"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: progress/templates/progress/my_checkins.html
+msgid "overdue"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/payment_queue.html
+msgid "package price"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "payment method"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "payment proof"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "payment proofs"
+msgstr ""
+
+#: workouts/models.py
+msgid "personal record"
+msgstr ""
+
+#: workouts/models.py
+msgid "personal records"
+msgstr ""
+
+#: accounts/forms.py
+#: accounts/models.py
+msgid "phone number"
+msgstr ""
+
+#: progress/models.py
+msgid "photo"
+msgstr ""
+
+#: nutrition/models.py
+#: subscriptions/models.py
+#: workouts/models.py
+msgid "plan"
+msgstr ""
+
+#: progress/models.py
+msgid "plan adherence (1-5)"
+msgstr ""
+
+#: workouts/models.py
+msgid "plan exercise"
+msgstr ""
+
+#: progress/models.py
+msgid "pose"
+msgstr ""
+
+#: accounts/models.py
+msgid "preferred language"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "price (EGP)"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "private — do not share"
+msgstr ""
+
+#: progress/templates/progress/client_progress.html
+msgid "progress"
+msgstr ""
+
+#: progress/models.py
+msgid "progress photo"
+msgstr ""
+
+#: progress/models.py
+msgid "progress photos"
+msgstr ""
+
+#: nutrition/models.py
+msgid "protein"
+msgstr ""
+
+#: nutrition/models.py
+msgid "protein per 100g"
+msgstr ""
+
+#: workouts/models.py
+msgid "record type"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "reference number"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "rejection reason"
+msgstr ""
+
+#: progress/models.py
+msgid "replied at"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: progress/templates/progress/client_progress.html
+msgid "reply"
+msgstr ""
+
+#: workouts/models.py
+msgid "reps"
+msgstr ""
+
+#: workouts/models.py
+msgid "reps (upper bound)"
+msgstr ""
+
+#: workouts/models.py
+msgid "rest (seconds)"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "reviewed at"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "reviewed by"
+msgstr ""
+
+#: progress/models.py
+msgid "reviewed by coach"
+msgstr ""
+
+#: accounts/models.py
+msgid "role"
+msgstr ""
+
+#: workouts/models.py
+msgid "session"
+msgstr ""
+
+#: workouts/models.py
+msgid "session effort (1-10)"
+msgstr ""
+
+#: workouts/models.py
+msgid "set"
+msgstr ""
+
+#: workouts/models.py
+msgid "set log"
+msgstr ""
+
+#: workouts/models.py
+msgid "set logs"
+msgstr ""
+
+#: workouts/models.py
+msgid "set number"
+msgstr ""
+
+#: workouts/models.py
+msgid "sets"
+msgstr ""
+
+#: progress/models.py
+msgid "sleep (1-5)"
+msgstr ""
+
+#: workouts/models.py
+msgid "slug"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "start date"
+msgstr ""
+
+#: workouts/models.py
+msgid "started at"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "status"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+#: accounts/templates/accounts/trainer_dashboard.html
+#: progress/templates/progress/checkin_queue.html
+#: progress/templates/progress/client_progress.html
+#: progress/templates/progress/my_checkins.html
+msgid "submitted"
+msgstr ""
+
+#: accounts/models.py
+#: progress/models.py
+#: subscriptions/models.py
+msgid "submitted at"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "subscription"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "subscription plan"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "subscription plans"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "subscriptions"
+msgstr ""
+
+#: nutrition/models.py
+msgid "supplement"
+msgstr ""
+
+#: nutrition/models.py
+msgid "supplement schedule"
+msgstr ""
+
+#: nutrition/models.py
+msgid "supplements"
+msgstr ""
+
+#: nutrition/models.py
+msgid "target calories"
+msgstr ""
+
+#: nutrition/models.py
+msgid "target carbs (g)"
+msgstr ""
+
+#: nutrition/models.py
+msgid "target fats (g)"
+msgstr ""
+
+#: nutrition/models.py
+msgid "target protein (g)"
+msgstr ""
+
+#: workouts/models.py
+msgid "target weight (kg)"
+msgstr ""
+
+#: progress/models.py
+msgid "thigh (cm)"
+msgstr ""
+
+#: nutrition/models.py
+msgid "timing"
+msgstr ""
+
+#: nutrition/models.py
+#: workouts/models.py
+msgid "title"
+msgstr ""
+
+#: accounts/models.py
+msgid "trainer note"
+msgstr ""
+
+#: accounts/models.py
+msgid "trainer notes"
+msgstr ""
+
+#: accounts/models.py
+msgid "training days available per week"
+msgstr ""
+
+#: subscriptions/models.py
+msgid "transfer screenshot"
+msgstr ""
+
+#: workouts/models.py
+msgid "updated at"
+msgstr ""
+
+#: progress/models.py
+msgid "uploaded at"
+msgstr ""
+
+#: workouts/models.py
+msgid "value"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "volume {{ volume }}kg"
+msgstr ""
+
+#: progress/templates/progress/checkin_reply.html
+#: progress/templates/progress/client_progress.html
+msgid "waist"
+msgstr ""
+
+#: progress/models.py
+msgid "waist (cm)"
+msgstr ""
+
+#: accounts/templates/accounts/client_detail.html
+msgid "waiting"
+msgstr ""
+
+#: workouts/templates/workouts/partials/set_row.html
+#: workouts/templates/workouts/session_history.html
+msgid "warm-up"
+msgstr ""
+
+#: workouts/models.py
+msgid "warm-up set"
+msgstr ""
+
+#: accounts/templates/accounts/trainer_dashboard.html
+msgid "was due"
+msgstr ""
+
+#: progress/models.py
+#: workouts/models.py
+msgid "weight (kg)"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout day"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout days"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout plan"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout plans"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout session"
+msgstr ""
+
+#: workouts/models.py
+msgid "workout sessions"
+msgstr ""

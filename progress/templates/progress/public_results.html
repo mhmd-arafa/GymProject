@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Results" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Results" %}</h1>
+    <p class="board-head__count">{% translate "shared with permission" %}</p>
+</div>
+
+{% if photos %}
+    <div class="shots">
+        {% for photo in photos %}
+            <figure class="shot" style="margin:0">
+                <img src="{{ photo.image.url }}" alt="{{ photo.get_pose_display }}">
+                <figcaption class="shot__caption">
+                    <span>{{ photo.get_pose_display }}</span>
+                    <span>{{ photo.date|date:"M Y" }}</span>
+                </figcaption>
+            </figure>
+        {% endfor %}
+    </div>
+    <p class="quiet" style="margin-block-start:var(--gap-3)">
+        {% translate "Every photo here is published because the client explicitly allowed it, and they can withdraw that at any time." %}
+    </p>
+{% else %}
+    <div class="allclear">
+        <h2>{% translate "Nothing shared yet" %}</h2>
+        <p>{% translate "Photos appear here only when a client ticks the sharing box on their own photo. Nothing is published by default." %}</p>
+    </div>
+{% endif %}
+{% endblock %}

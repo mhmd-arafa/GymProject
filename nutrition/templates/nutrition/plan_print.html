@@ -1,0 +1,167 @@
+{% load i18n %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ plan.title }}</title>
+    {# Standalone by design: ink on paper, no dependency on the app stylesheet. #}
+    <style>
+        @page { margin: 16mm; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #111;
+            background: #fff;
+            margin: 0;
+            font-size: 11pt;
+            line-height: 1.45;
+        }
+        header { border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 18px; }
+        h1 { font-size: 19pt; margin: 0 0 2px; }
+        .who { color: #555; font-size: 10pt; margin: 0; }
+        h2 { font-size: 12pt; margin: 20px 0 6px; text-transform: uppercase; letter-spacing: 0.09em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            text-align: start;
+            padding: 5px 7px;
+            border-bottom: 1px solid #ddd;
+            font-variant-numeric: tabular-nums;
+        }
+        th {
+            font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.07em;
+            color: #666; border-bottom: 1px solid #999;
+        }
+        tfoot th, tfoot td { border-top: 2px solid #111; border-bottom: 0; font-weight: 600; }
+        /* An alternative is a swap for the row above, not an extra meal. */
+        .alt td { color: #555; font-size: 10pt; }
+        .alt td:first-child { padding-inline-start: 22px; }
+        .foods { color: #666; font-size: 9.5pt; margin: 2px 0 0; }
+        section { break-inside: avoid; }
+        .target { margin-top: 16px; }
+        .off { color: #b3261e; font-weight: 600; }
+        footer { margin-top: 22px; padding-top: 8px; border-top: 1px solid #ddd;
+                 color: #777; font-size: 9pt; }
+        .print-btn {
+            font: inherit; padding: 7px 13px; cursor: pointer;
+            border: 1px solid #111; background: #111; color: #fff; border-radius: 4px;
+            margin-bottom: 14px;
+        }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <button type="button" class="no-print print-btn" onclick="window.print()">
+        {% translate "Print or save as PDF" %}
+    </button>
+
+    <header>
+        <h1>{{ plan.title }}</h1>
+        <p class="who">{{ plan.client.get_full_name|default:plan.client.username }}</p>
+    </header>
+
+    <section>
+        <h2>{% translate "Meals" %}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>{% translate "Meal" %}</th>
+                    <th>{% translate "Calories" %}</th>
+                    <th>{% translate "Protein" %}</th>
+                    <th>{% translate "Carbs" %}</th>
+                    <th>{% translate "Fats" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meal in meals %}
+                    <tr>
+                        <td>
+                            <strong>{{ meal.name }}</strong>
+                            {% if meal.food_items.all %}
+                                <p class="foods">
+                                    {% for item in meal.food_items.all %}{{ item.grams }}g {{ item.food.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
+                                </p>
+                            {% endif %}
+                            {% if meal.notes %}<p class="foods">{{ meal.notes }}</p>{% endif %}
+                        </td>
+                        <td>{{ meal.calories }}</td>
+                        <td>{{ meal.protein }}g</td>
+                        <td>{{ meal.carbs }}g</td>
+                        <td>{{ meal.fats }}g</td>
+                    </tr>
+                    {% for alternative in meal.alternatives.all %}
+                        <tr class="alt">
+                            <td>
+                                {% translate "or" %} {{ alternative.name }}
+                                {% if alternative.food_items.all %}
+                                    <p class="foods">
+                                        {% for item in alternative.food_items.all %}{{ item.grams }}g {{ item.food.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
+                                    </p>
+                                {% endif %}
+                            </td>
+                            <td>{{ alternative.calories }}</td>
+                            <td>{{ alternative.protein }}g</td>
+                            <td>{{ alternative.carbs }}g</td>
+                            <td>{{ alternative.fats }}g</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row">{% translate "Daily total" %}</th>
+                    <td>{{ totals.calories }}</td>
+                    <td>{{ totals.protein }}g</td>
+                    <td>{{ totals.carbs }}g</td>
+                    <td>{{ totals.fats }}g</td>
+                </tr>
+            </tfoot>
+        </table>
+        <p class="foods">{% translate "Alternatives are swaps for the meal above, not extra food." %}</p>
+    </section>
+
+    {% if comparison %}
+        <section class="target">
+            <h2>{% translate "Against target" %}</h2>
+            <table>
+                <tbody>
+                    {% for line in comparison.rows %}
+                        <tr>
+                            <td>{{ line.label }}</td>
+                            <td>{{ line.actual }} / {{ line.target }}</td>
+                            <td class="{% if line.off_target %}off{% endif %}">
+                                {% if line.difference > 0 %}+{% endif %}{{ line.difference }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    {% if plan.macro_target.water_ml %}
+        <section>
+            <h2>{% translate "Water" %}</h2>
+            <p>{% blocktranslate with ml=plan.macro_target.water_ml %}{{ ml }} ml a day{% endblocktranslate %}</p>
+        </section>
+    {% endif %}
+
+    {% if plan.supplement_schedule.all %}
+        <section>
+            <h2>{% translate "Supplements" %}</h2>
+            <table>
+                <tbody>
+                    {% for entry in plan.supplement_schedule.all %}
+                        <tr>
+                            <td>{{ entry.supplement.name }}</td>
+                            <td>{{ entry.dose }}</td>
+                            <td>{{ entry.get_timing_display }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <footer>{% translate "Weigh food raw unless the plan says otherwise. Tell your coach if a meal doesn't work for you." %}</footer>
+</body>
+</html>

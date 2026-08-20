@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Build meal" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ meal.name }}</h1>
+    <p class="board-head__count">{{ meal.plan.title }}</p>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat__label">{% translate "Calories" %}</span>
+        <span class="stat__value">{{ meal.calories }}</span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Protein" %}</span>
+        <span class="stat__value">{{ meal.protein }}<small> g</small></span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Carbs" %}</span>
+        <span class="stat__value">{{ meal.carbs }}<small> g</small></span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Fats" %}</span>
+        <span class="stat__value">{{ meal.fats }}<small> g</small></span>
+    </div>
+</div>
+
+<div class="panel">
+    <p class="quiet">
+        {% translate "Enter grams and the macros compute from the food database. Egyptian staples are listed first." %}
+    </p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ items_formset.management_form }}
+    {% for item_form in items_formset %}
+        <div class="formset__row">{{ item_form.as_p }}</div>
+    {% endfor %}
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save and recalculate" %}</button>
+        <a class="btn btn--ghost" href="{% url 'nutrition-plan-detail' meal.plan_id %}">{% translate "Back to plan" %}</a>
+    </div>
+</form>
+{% endblock %}

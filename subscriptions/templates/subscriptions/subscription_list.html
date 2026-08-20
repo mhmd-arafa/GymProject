@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Subscriptions" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Subscriptions" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--ghost" href="{% url 'payment-queue' %}">{% translate "Payments" %}</a>
+        <a class="btn btn--ghost" href="{% url 'subscription-plan-list' %}">{% translate "Packages" %}</a>
+        <a class="btn btn--primary" href="{% url 'subscription-assign' %}">{% translate "Assign" %}</a>
+    </div>
+</div>
+
+<div class="panel">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">{% translate "Client" %}</th>
+                <th scope="col">{% translate "Package" %}</th>
+                <th scope="col">{% translate "Status" %}</th>
+                <th scope="col">{% translate "Ends" %}</th>
+                <th scope="col">{% translate "Left" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subscription in subscriptions %}
+                <tr>
+                    <td><a href="{% url 'client-detail' subscription.client.pk %}">
+                        {{ subscription.client.username }}</a></td>
+                    <td>{{ subscription.plan.name }}</td>
+                    <td>
+                        {% if subscription.status == 'ACTIVE' %}
+                            <span class="badge badge--ok">{{ subscription.get_status_display }}</span>
+                        {% elif subscription.status == 'EXPIRED' %}
+                            <span class="badge badge--late">{{ subscription.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge">{{ subscription.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ subscription.end_date|default:"—" }}</td>
+                    <td>
+                        {% if subscription.days_remaining is not None %}
+                            {{ subscription.days_remaining }}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">{% translate "No subscriptions yet." %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

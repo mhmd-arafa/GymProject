@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "New template" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "New template" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">
+        {% translate "A template has no client. Name the days now, add exercises next, then assign it to as many clients as you like." %}
+    </p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "Template" %}</h2></div>
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "Days" %}</h2></div>
+        {{ days_formset.management_form }}
+        {% for day_form in days_formset %}
+            <div class="formset__row">{{ day_form.as_p }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save template" %}</button>
+        <a class="btn btn--ghost" href="{% url 'plan-template-list' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

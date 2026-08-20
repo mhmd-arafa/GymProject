@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "History" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "History" %}</h1>
+    <p class="board-head__count">
+        {% if adherence.percent is not None %}
+            <b>{{ adherence.completed }}/{{ adherence.expected }}</b> {% translate "this week" %}
+        {% endif %}
+    </p>
+</div>
+
+{% if records %}
+    <p class="eyebrow">{% translate "Personal bests" %}</p>
+    <hr class="rule">
+    <div class="panel">
+        <table class="data-table">
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td><a href="{% url 'exercise-history' record.catalog_exercise.slug %}">
+                            {{ record.catalog_exercise.name }}</a></td>
+                        <td>{{ record.get_record_type_display }}</td>
+                        <td>{{ record.value|trim_decimal }}</td>
+                        <td>{{ record.achieved_on }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Sessions" %}</p>
+<hr class="rule">
+
+{% for session in sessions %}
+    <article class="session-card {% if not session.completed_at %}session-card--open{% endif %}">
+        <div class="session-card__head">
+            <span class="session-card__date">
+                {% if session.day %}{{ session.day.day_name }}{% else %}{% translate "Ad-hoc" %}{% endif %}
+            </span>
+            <span class="list__meta">
+                {{ session.started_at|date:"D j M Y" }}
+                {% if session.completed_at %}
+                    · {% blocktranslate with v=session.total_volume_kg|trim_decimal %}{{ v }}kg total{% endblocktranslate %}
+                    {% if session.perceived_effort %} · RPE {{ session.perceived_effort }}/10{% endif %}
+                {% else %}
+                    · <span class="badge badge--live">{% translate "open" %}</span>
+                {% endif %}
+            </span>
+        </div>
+
+        {% if not session.completed_at %}
+            <p><a class="btn btn--ghost" href="{% url 'workout-session' session.pk %}">
+                {% translate "Continue this workout" %}</a></p>
+        {% endif %}
+
+        {% regroup session.set_logs.all by exercise_name as by_exercise %}
+        {% for group in by_exercise %}
+            <div class="set-line">
+                <span class="set-line__name">{{ group.grouper }}</span>
+                <span>
+                    {% for s in group.list %}{{ s.weight_kg|trim_decimal }}kg×{{ s.reps }}{% if s.is_warmup %}w{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}
+                </span>
+            </div>
+        {% empty %}
+            <p class="quiet">{% translate "No sets logged." %}</p>
+        {% endfor %}
+
+        {% if session.notes %}
+            <blockquote class="quote" style="margin-block-start:var(--gap-2)">
+                <p>{{ session.notes }}</p>
+            </blockquote>
+        {% endif %}
+    </article>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "Nothing logged yet" %}</h2>
+        <p>{% translate "Start a workout from your plan and your sets will collect here." %}</p>
+        <p><a class="btn btn--primary" href="{% url 'my-workout-plan' %}">{% translate "Go to my plan" %}</a></p>
+    </div>
+{% endfor %}
+
+{% if is_paginated %}
+    <nav class="form-actions" aria-label="{% translate 'Pages' %}">
+        {% if page_obj.has_previous %}
+            <a class="btn btn--ghost" href="?page={{ page_obj.previous_page_number }}">{% translate "Newer" %}</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+            <a class="btn btn--ghost" href="?page={{ page_obj.next_page_number }}">{% translate "Older" %}</a>
+        {% endif %}
+    </nav>
+{% endif %}
+{% endblock %}

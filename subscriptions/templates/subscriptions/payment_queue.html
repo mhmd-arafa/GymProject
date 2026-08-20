@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Payments" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Payments" %}</h1>
+    <p class="board-head__count"><b>{{ proofs|length }}</b> {% translate "to review" %}</p>
+</div>
+
+{% for proof in proofs %}
+    <div class="panel">
+        <div class="panel__head">
+            <h2>
+                <a href="{% url 'client-detail' proof.subscription.client.pk %}">
+                    {{ proof.subscription.client.username }}</a>
+            </h2>
+            <span class="list__meta">
+                {% blocktranslate with ago=proof.submitted_at|timesince %}{{ ago }} ago{% endblocktranslate %}
+            </span>
+        </div>
+
+        <div class="stats" style="margin-block-end:var(--gap-3)">
+            <div class="stat">
+                <span class="stat__label">{% translate "Paid" %}</span>
+                <span class="stat__value">{{ proof.amount_egp|floatformat:"0" }}<small> EGP</small></span>
+                {% if proof.amount_egp < proof.subscription.plan.price_egp %}
+                    <span class="stat__delta stat__delta--up">
+                        {% blocktranslate with p=proof.subscription.plan.price_egp|floatformat:"0" %}short of {{ p }}{% endblocktranslate %}
+                    </span>
+                {% else %}
+                    <span class="stat__delta">
+                        {% blocktranslate with p=proof.subscription.plan.price_egp|floatformat:"0" %}price {{ p }}{% endblocktranslate %}
+                    </span>
+                {% endif %}
+            </div>
+            <div class="stat">
+                <span class="stat__label">{% translate "Method" %}</span>
+                <span class="stat__value" style="font-size:var(--step-1)">{{ proof.get_method_display }}</span>
+                <span class="stat__delta">{{ proof.reference_number|default:"—" }}</span>
+            </div>
+            <div class="stat">
+                <span class="stat__label">{% translate "Package" %}</span>
+                <span class="stat__value" style="font-size:var(--step-1)">{{ proof.subscription.plan.name }}</span>
+                <span class="stat__delta">
+                    {% blocktranslate count counter=proof.subscription.plan.duration_days %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+                </span>
+            </div>
+        </div>
+
+        {% if proof.note %}<blockquote class="quote"><p>{{ proof.note }}</p></blockquote>{% endif %}
+
+        {% if proof.screenshot %}
+            <a class="shot" style="max-inline-size:16rem; display:block"
+               href="{{ proof.screenshot.url }}" target="_blank" rel="noopener">
+                <img src="{{ proof.screenshot.url }}" alt="{% translate 'Transfer receipt' %}"
+                     style="aspect-ratio:auto">
+                <span class="shot__caption">{% translate "open full size" %}</span>
+            </a>
+        {% else %}
+            <p class="quiet">{% translate "No screenshot — check the reference number against your account." %}</p>
+        {% endif %}
+
+        <div class="form-actions">
+            <form method="post" action="{% url 'payment-approve' proof.pk %}">
+                {% csrf_token %}
+                <button class="btn btn--primary" type="submit">{% translate "Approve and activate" %}</button>
+            </form>
+
+            <form method="post" action="{% url 'payment-reject' proof.pk %}"
+                  style="display:flex; gap:var(--gap-2); align-items:center; flex-wrap:wrap">
+                {% csrf_token %}
+                <label class="visually-hidden" for="reason-{{ proof.pk }}">{% translate "Reason" %}</label>
+                <input class="select" type="text" id="reason-{{ proof.pk }}" name="rejection_reason"
+                       placeholder="{% translate 'Why reject?' %}" required>
+                <button class="btn btn--ghost" type="submit">{% translate "Reject" %}</button>
+            </form>
+        </div>
+    </div>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "Nothing waiting" %}</h2>
+        <p>{% translate "Approved payments activate the client's subscription automatically." %}</p>
+        <p><a class="btn btn--ghost" href="{% url 'trainer-dashboard' %}">{% translate "Back to today" %}</a></p>
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Packages" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Packages" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--primary" href="{% url 'subscription-plan-add' %}">{% translate "New package" %}</a>
+    </div>
+</div>
+
+<div class="cards">
+    {% for plan in plans %}
+        <div class="card">
+            <h2 class="card__title">{{ plan.name }}</h2>
+            <p class="card__meta">
+                {{ plan.price_egp|floatformat:"0" }} EGP ·
+                {% blocktranslate count counter=plan.duration_days %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+                {% if not plan.is_active %}
+                    <span class="badge">{% translate "inactive" %}</span>
+                {% endif %}
+            </p>
+            <div class="card__body">
+                {% if plan.description %}<p class="quiet">{{ plan.description }}</p>{% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="allclear">
+            <h2>{% translate "No packages yet" %}</h2>
+            <p>{% translate "Clients pick from these when they subscribe." %}</p>
+            <p><a class="btn btn--primary" href="{% url 'subscription-plan-add' %}">{% translate "Create one" %}</a></p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

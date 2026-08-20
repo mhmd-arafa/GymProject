@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Templates" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Templates" %}</h1>
+    <div class="page-head__actions">
+        <a class="btn btn--primary" href="{% url 'plan-template-add' %}">{% translate "New template" %}</a>
+    </div>
+</div>
+
+<div class="panel">
+    <p class="quiet">
+        {% translate "Build a plan once here, then assign it to as many clients as you like. Each client gets their own copy, so editing theirs never touches the template." %}
+    </p>
+</div>
+
+{% for template in templates %}
+    <div class="panel">
+        <div class="panel__head">
+            <h2>{{ template.title }}</h2>
+            <span class="list__meta">
+                {% blocktranslate count counter=template.days.count %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+            </span>
+        </div>
+        {% if template.description %}<p class="quiet">{{ template.description }}</p>{% endif %}
+
+        <ul class="list">
+            {% for day in template.days.all %}
+                <li>
+                    <span class="list__lead">{{ day.day_name }}</span>
+                    <span class="list__meta">
+                        {% blocktranslate count counter=day.exercises.count %}{{ counter }} exercise{% plural %}{{ counter }} exercises{% endblocktranslate %}
+                    </span>
+                    <a class="list__meta" href="{% url 'add-exercises' day.pk %}">{% translate "edit" %}</a>
+                </li>
+            {% empty %}
+                <li class="quiet">{% translate "No days yet — add some before assigning." %}</li>
+            {% endfor %}
+        </ul>
+
+        <form method="post" action="{% url 'plan-template-clone' template.pk %}"
+              class="filters" style="margin-block:var(--gap-3) 0">
+            {% csrf_token %}
+            <div class="field">
+                <label class="field__label" for="client-{{ template.pk }}">{% translate "Assign to" %}</label>
+                <select id="client-{{ template.pk }}" name="client" required>
+                    {% for client in clients %}
+                        <option value="{{ client.pk }}">{{ client.get_full_name|default:client.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label class="field__label" for="title-{{ template.pk }}">{% translate "Rename (optional)" %}</label>
+                <input type="text" id="title-{{ template.pk }}" name="title" placeholder="{{ template.title }}">
+            </div>
+            <button class="btn btn--primary" type="submit">{% translate "Assign" %}</button>
+        </form>
+    </div>
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "No templates yet" %}</h2>
+        <p>{% translate "This is the feature that makes the app faster than a spreadsheet. Build your standard plan once." %}</p>
+        <p><a class="btn btn--primary" href="{% url 'plan-template-add' %}">{% translate "Build your first template" %}</a></p>
+    </div>
+{% endfor %}
+{% endblock %}

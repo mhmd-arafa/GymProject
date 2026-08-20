@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{{ exercise.name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ exercise.name }}</h1>
+    <p class="board-head__count">
+        {{ exercise.get_muscle_group_display }} · {{ exercise.get_equipment_display }}
+        {% if subject != request.user %}
+            · <b>{{ subject.username }}</b>
+        {% endif %}
+    </p>
+</div>
+
+{% if exercise.video_url or exercise.instructions %}
+    <div class="panel">
+        {% if exercise.video_url %}
+            <p><a class="btn btn--ghost" href="{{ exercise.video_url }}" target="_blank" rel="noopener">
+                {% translate "Watch demo" %}</a></p>
+        {% endif %}
+        {% if exercise.instructions %}<p class="quiet">{{ exercise.instructions }}</p>{% endif %}
+    </div>
+{% endif %}
+
+{% if records %}
+    <div class="stats">
+        {% for record in records %}
+            <div class="stat">
+                <span class="stat__label">{{ record.get_record_type_display }}</span>
+                <span class="stat__value">{{ record.value|trim_decimal }}</span>
+                <span class="stat__delta">{{ record.achieved_on }}</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Top set over time" %}</p>
+<hr class="rule">
+<div class="panel">{% include "progress/partials/line_chart.html" with chart=weight_chart %}</div>
+
+<p class="eyebrow">{% translate "Volume over time" %}</p>
+<hr class="rule">
+<div class="panel">{% include "progress/partials/line_chart.html" with chart=volume_chart %}</div>
+
+<p class="eyebrow">{% translate "Session by session" %}</p>
+<hr class="rule">
+<div class="panel">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">{% translate "Date" %}</th>
+                <th scope="col">{% translate "Top set" %}</th>
+                <th scope="col">{% translate "Volume" %}</th>
+                <th scope="col">{% translate "Est. 1RM" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for point in history %}
+                <tr>
+                    <td>{{ point.date }}</td>
+                    <td>{{ point.top_weight_kg|trim_decimal }} kg</td>
+                    <td>{{ point.volume_kg|trim_decimal }} kg</td>
+                    <td>{{ point.best_1rm_kg|default_if_none:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">{% translate "No history for this lift yet." %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

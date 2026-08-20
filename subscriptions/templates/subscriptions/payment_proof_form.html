@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Send payment details" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Payment details" %}</h1>
+    <p class="board-head__count">
+        {{ subscription.plan.name }} · <b>{{ subscription.plan.price_egp|floatformat:"0" }} EGP</b>
+    </p>
+</div>
+
+<div class="panel">
+    <p class="quiet">
+        {% translate "Send the transfer by InstaPay, Vodafone Cash or bank, then give the reference number or a screenshot of the receipt. Your coach checks it and activates your subscription." %}
+    </p>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Send for approval" %}</button>
+        <a class="btn btn--ghost" href="{% url 'my-subscription' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

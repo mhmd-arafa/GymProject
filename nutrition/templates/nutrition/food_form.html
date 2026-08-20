@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Add food" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Add food" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "Enter macros per 100g and any gram amount computes automatically." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save food" %}</button>
+        <a class="btn btn--ghost" href="{% url 'food-list' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

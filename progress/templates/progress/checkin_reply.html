@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% blocktranslate with name=object.client.username %}Check-in — {{ name }}{% endblocktranslate %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{{ object.client.username }}</h1>
+    <p class="board-head__count">
+        {% translate "due" %} {{ object.due_date }}
+        {% if object.submitted_at %}
+            · {% blocktranslate with ago=object.submitted_at|timesince %}sent {{ ago }} ago{% endblocktranslate %}
+        {% endif %}
+    </p>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <span class="stat__label">{% translate "Weight" %}</span>
+        <span class="stat__value">{{ object.weight_kg|trim_decimal|default:"—" }}<small> kg</small></span>
+        {% if weight_delta is not None %}
+            <span class="stat__delta {% if weight_delta < 0 %}stat__delta--down{% elif weight_delta > 0 %}stat__delta--up{% endif %}">
+                {% if weight_delta > 0 %}+{% endif %}{{ weight_delta|trim_decimal }} {% translate "vs last" %}
+            </span>
+        {% endif %}
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Training" %}</span>
+        <span class="stat__value">
+            {% if adherence.percent is not None %}{{ adherence.percent }}<small>%</small>{% else %}{{ adherence.completed }}{% endif %}
+        </span>
+        <span class="stat__delta">
+            {% blocktranslate with done=adherence.completed %}{{ done }} logged this week{% endblocktranslate %}
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__label">{% translate "Photos" %}</span>
+        <span class="stat__value">{{ object.photos.all|length }}</span>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel__head"><h2>{% translate "How the week felt" %}</h2></div>
+    <div class="ratings">
+        <div>
+            <span class="rating__label">{% translate "Energy" %}</span>
+            <span class="rating__stars">{{ object.energy_rating|rating_stars }}</span>
+        </div>
+        <div>
+            <span class="rating__label">{% translate "Sleep" %}</span>
+            <span class="rating__stars">{{ object.sleep_rating|rating_stars }}</span>
+        </div>
+        <div>
+            <span class="rating__label">{% translate "Stuck to plan" %}</span>
+            <span class="rating__stars">{{ object.adherence_rating|rating_stars }}</span>
+        </div>
+    </div>
+    {% if object.note %}
+        <blockquote class="quote"><p>{{ object.note|linebreaksbr }}</p></blockquote>
+    {% else %}
+        <p class="quiet">{% translate "No note this week." %}</p>
+    {% endif %}
+</div>
+
+{% if photo_pairs %}
+    <p class="eyebrow">{% translate "Photos — last check-in vs this one" %}</p>
+    <hr class="rule">
+
+    {% for pair in photo_pairs %}
+        <section class="compare" aria-labelledby="pair-{{ forloop.counter }}">
+            <div class="compare__head">
+                <h2 class="compare__pose" id="pair-{{ forloop.counter }}">{{ pair.pose }}</h2>
+            </div>
+            <div class="compare__pair">
+                <div class="compare__slot compare__slot--then">
+                    {% if pair.then %}
+                        <span class="compare__tag">{% translate "last" %}</span>
+                        <a href="{{ pair.then.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ pair.then.image.url }}"
+                                 alt="{% blocktranslate with p=pair.pose d=pair.then.date %}{{ p }} view, {{ d }}{% endblocktranslate %}">
+                        </a>
+                        <p class="compare__date">{{ pair.then.date }}</p>
+                    {% else %}
+                        <div class="compare__missing">{% translate "No photo last check-in" %}</div>
+                    {% endif %}
+                </div>
+                <div class="compare__slot compare__slot--now">
+                    {% if pair.now %}
+                        <span class="compare__tag compare__tag--now">{% translate "this week" %}</span>
+                        <a href="{{ pair.now.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ pair.now.image.url }}"
+                                 alt="{% blocktranslate with p=pair.pose d=pair.now.date %}{{ p }} view, {{ d }}{% endblocktranslate %}">
+                        </a>
+                        <p class="compare__date">{{ pair.now.date }}</p>
+                    {% else %}
+                        <div class="compare__missing">{% translate "Not sent this week" %}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endfor %}
+    <p class="quiet">{% translate "Tap a photo to open it full size." %}</p>
+{% else %}
+    <div class="panel">
+        <div class="panel__head"><h2>{% translate "Photos" %}</h2></div>
+        <p class="quiet">{% translate "No photos with this check-in." %}</p>
+        {% whatsapp_url object.client.phone as wa %}
+        {% if wa %}
+            <a class="btn btn--ghost" href="{{ wa }}" target="_blank" rel="noopener">
+                {% translate "Ask for photos on WhatsApp" %}</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Measurements" %}</p>
+<hr class="rule">
+<div class="panel">
+    {% include "progress/partials/line_chart.html" with chart=weight_chart %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">{% translate "Date" %}</th>
+                <th scope="col">{% translate "kg" %}</th>
+                <th scope="col">{% translate "Waist" %}</th>
+                <th scope="col">{% translate "Chest" %}</th>
+                <th scope="col">{% translate "Arm" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in measurements %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.weight_kg|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.waist_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.chest_cm|trim_decimal|default:"—" }}</td>
+                    <td>{{ entry.arm_cm|trim_decimal|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">{% translate "No measurements recorded." %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="eyebrow">{% translate "Your reply" %}</p>
+<hr class="rule">
+<div class="panel">
+    <form method="post" class="form-stack">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button class="btn btn--primary" type="submit">{% translate "Send reply" %}</button>
+            <a class="btn btn--ghost" href="{% url 'client-detail' object.client.pk %}">{% translate "Client file" %}</a>
+            <a class="btn btn--ghost" href="{% url 'client-progress' object.client.pk %}">{% translate "Full progress" %}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

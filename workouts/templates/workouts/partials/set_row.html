@@ -1,0 +1,24 @@
+{% load i18n gym_extras %}
+<li class="set {% if set_log.is_warmup %}set--warmup{% endif %}" id="set-{{ set_log.pk }}">
+    <span class="set__n">{% if set_log.is_warmup %}{% translate "W" %}{% else %}{{ set_log.set_number }}{% endif %}</span>
+
+    <span>
+        {# Unit stays on the row so it reads the same as the "Last time" line
+           above the form. Same data, same rendering. #}
+        <span class="set__load">{{ set_log.weight_kg|trim_decimal }}kg × {{ set_log.reps }}</span>
+        {% if set_log.rpe %}<span class="set__rpe">@{{ set_log.rpe|trim_decimal }}</span>{% endif %}
+        {% if set_log.is_warmup %}<span class="set__tag">{% translate "warm-up" %}</span>{% endif %}
+        {% for record in records %}
+            <span class="set__pr">{% blocktranslate with type=record.get_record_type_display %}best {{ type }}{% endblocktranslate %}</span>
+        {% endfor %}
+    </span>
+
+    <form method="post" action="{% url 'delete-set' set_log.pk %}"
+          hx-post="{% url 'delete-set' set_log.pk %}"
+          hx-target="#set-{{ set_log.pk }}"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        <button class="set__undo" type="submit"
+                aria-label="{% blocktranslate with n=set_log.set_number %}Undo set {{ n }}{% endblocktranslate %}">×</button>
+    </form>
+</li>

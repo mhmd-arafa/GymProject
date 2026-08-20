@@ -1,21 +1,40 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>إضافة تمارين</title>
-</head>
-<body>
-    <h1>تمارين يوم: {{ object.day_name }}</h1>
+{% extends "base.html" %}
+{% load i18n %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ exercise_formset.management_form }}
+{% block title %}{% translate "Exercises" %}{% endblock %}
 
-        {% for exercise_form in exercise_formset %}
-            <div>{{ exercise_form.as_p }}</div>
-        {% endfor %}
+{% block content %}
+<div class="page-head">
+    <h1>{{ object.day_name }}</h1>
+    <p class="board-head__count">{{ object.plan.title }}</p>
+</div>
 
-        <button type="submit">حفظ التمارين</button>
-    </form>
-</body>
-</html>
+<div class="panel">
+    <p class="quiet">
+        {% translate "Pick from the library where you can — that's what unlocks history, charts and personal records for this lift. Leave the upper rep bound empty for a fixed rep count." %}
+    </p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ exercise_formset.management_form }}
+    {% for exercise_form in exercise_formset %}
+        <div class="formset__row">
+            <span class="eyebrow">{{ forloop.counter|stringformat:"02d" }}</span>
+            {{ exercise_form.as_p }}
+        </div>
+    {% endfor %}
+
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save exercises" %}</button>
+        <a class="btn btn--ghost" href="{% url 'client-list' %}">{% translate "Done" %}</a>
+    </div>
+</form>
+
+{# Feeds the name field's autocomplete, so plan-building needs no JS. #}
+<datalist id="exercise-catalog-options">
+    {% for item in catalog %}
+        <option value="{{ item.name }}"></option>
+    {% endfor %}
+</datalist>
+{% endblock %}

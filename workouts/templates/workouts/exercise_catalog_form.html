@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Add exercise" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Add exercise" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "A demo video link shows up for clients on the in-gym screen." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save" %}</button>
+        <a class="btn btn--ghost" href="{% url 'exercise-catalog' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

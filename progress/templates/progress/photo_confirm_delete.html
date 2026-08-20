@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Delete photo" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Delete this photo?" %}</h1>
+</div>
+
+<div class="panel">
+    <div class="compare__pair">
+        <div class="compare__slot">
+            <img src="{{ object.image.url }}" alt="{{ object.get_pose_display }}">
+            <p class="compare__date">{{ object.get_pose_display }} · {{ object.date }}</p>
+        </div>
+    </div>
+    <p class="quiet">{% translate "The image file is removed too. This cannot be undone." %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button class="btn btn--primary" type="submit">{% translate "Delete photo" %}</button>
+            <a class="btn btn--ghost" href="{% url 'my-progress' %}">{% translate "Keep it" %}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

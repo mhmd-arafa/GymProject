@@ -1,0 +1,1184 @@
+/* ==========================================================================
+   Gym Coach — visual system
+
+   Direction: the lifter's logbook as an instrument. Tabular numerals, ruled
+   baselines, last session sitting directly above where you write the new one.
+
+   Two contexts drive every decision:
+     - Client, mid-set, one hand, 90 seconds. Big targets, thumb-reachable.
+     - Coach, triaging between clients. Urgency legible at a glance.
+
+   Everything uses CSS logical properties (inline-start/end, not left/right)
+   so the Arabic RTL translation mirrors correctly with no extra rules.
+   ========================================================================== */
+
+/* --- Fonts: self-hosted, no CDN ------------------------------------------ */
+
+@font-face {
+    font-family: 'Space Grotesk';
+    src: url('../fonts/spacegrotesk-var.woff2') format('woff2-variations');
+    font-weight: 300 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/plexsans-var.woff2') format('woff2-variations');
+    font-weight: 100 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    src: url('../fonts/plexmono-500.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+/* --- Tokens -------------------------------------------------------------- */
+
+:root {
+    /* Iron and chalk. Cool near-blacks like cast iron, never warm brown. */
+    --iron:        #14181d;
+    --iron-raised: #1b2129;
+    --plate:       #222a34;
+    --edge:        #2f3945;
+    --edge-bright: #41505f;
+
+    --chalk:       #eef1f4;
+    --dim:         #8d9aa9;
+    --dimmer:      #626e7c;
+
+    /* The accent is the colour of a 15kg competition plate. In this world
+       yellow means weight, so the accent carries meaning rather than mood. */
+    --yellow:      #ffce1f;
+    --yellow-deep: #d9a800;
+
+    /* Reserved strictly for "this is late". Never decorative. */
+    --alert:       #ff6b5a;
+
+    --display: 'Space Grotesk', 'Segoe UI', sans-serif;
+    --body:    'IBM Plex Sans', 'Segoe UI', sans-serif;
+    --data:    'IBM Plex Mono', ui-monospace, monospace;
+
+    /* Type scale: 1.25 ratio, but the big numerals jump the scale on purpose
+       so a weight is readable at arm's length on a bench. */
+    --step--1: 0.78rem;
+    --step-0:  0.94rem;
+    --step-1:  1.18rem;
+    --step-2:  1.47rem;
+    --step-3:  1.84rem;
+    --step-4:  2.6rem;
+    --step-5:  4.2rem;
+
+    --gap-1: 0.35rem;
+    --gap-2: 0.7rem;
+    --gap-3: 1.1rem;
+    --gap-4: 1.7rem;
+    --gap-5: 2.6rem;
+
+    --radius:    10px;
+    --radius-sm: 6px;
+
+    /* 56px: comfortable thumb target for a sweaty hand. Non-negotiable on
+       anything used mid-set. */
+    --touch: 3.5rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    background: var(--iron);
+    color: var(--chalk);
+    font-family: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    /* Never let a long Arabic or English word force a horizontal scroll. */
+    overflow-wrap: break-word;
+}
+
+h1, h2, h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+a { color: var(--chalk); text-decoration-color: var(--edge-bright); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--yellow); }
+
+:focus-visible {
+    outline: 2px solid var(--yellow);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Available to screen readers, absent from the visual layout. */
+.visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* --- Shell --------------------------------------------------------------- */
+
+.shell {
+    max-width: 60rem;
+    margin-inline: auto;
+    padding: var(--gap-3) var(--gap-3) var(--gap-5);
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    border-block-end: 1px solid var(--edge);
+    padding: var(--gap-2) var(--gap-3);
+    background: var(--iron);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 20;
+}
+
+.topbar__mark {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-0);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+}
+/* The stray dot is the only ornament in the whole system: a plate collar. */
+.topbar__mark::after {
+    content: '';
+    display: inline-block;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: var(--yellow);
+    margin-inline-start: 5px;
+    vertical-align: 2px;
+}
+
+.topbar__nav {
+    display: flex;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    font-size: var(--step--1);
+    margin-inline-end: auto;
+}
+.topbar__nav a {
+    color: var(--dim);
+    text-decoration: none;
+    padding-block: 4px;
+    border-block-end: 1px solid transparent;
+}
+.topbar__nav a:hover { color: var(--chalk); border-block-end-color: var(--edge-bright); }
+.topbar__nav a[aria-current='page'] { color: var(--chalk); border-block-end-color: var(--yellow); }
+
+.topbar__tools { display: flex; align-items: center; gap: var(--gap-2); }
+
+/* --- Buttons ------------------------------------------------------------- */
+
+.btn {
+    font-family: var(--body);
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--chalk);
+    background: var(--plate);
+    border: 1px solid var(--edge-bright);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+    min-block-size: 2.4rem;
+}
+.btn:hover { border-color: var(--dim); }
+
+.btn--primary {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: #16181c;
+}
+.btn--primary:hover { background: var(--yellow-deep); border-color: var(--yellow-deep); }
+
+/* The one button pressed mid-set, with gloves-off hands. */
+.btn--log {
+    inline-size: 100%;
+    min-block-size: var(--touch);
+    font-size: var(--step-1);
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.btn--ghost {
+    background: none;
+    border-color: var(--edge);
+    color: var(--dim);
+    font-size: var(--step--1);
+    font-weight: 500;
+    padding: 0.3rem 0.55rem;
+    min-block-size: auto;
+}
+.btn--ghost:hover { color: var(--chalk); border-color: var(--edge-bright); }
+
+.select {
+    font-family: var(--body);
+    font-size: var(--step--1);
+    color: var(--chalk);
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.5rem;
+}
+
+/* --- Messages ------------------------------------------------------------ */
+
+.flash { list-style: none; margin: 0 0 var(--gap-3); padding: 0; display: grid; gap: var(--gap-2); }
+.flash li {
+    border-inline-start: 3px solid var(--yellow);
+    background: var(--iron-raised);
+    padding: var(--gap-2) var(--gap-3);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: var(--step--1);
+}
+
+/* --- Eyebrow / section furniture ----------------------------------------- */
+
+.eyebrow {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    margin: 0;
+}
+
+.rule { border: 0; border-block-start: 1px solid var(--edge); margin-block: var(--gap-3); }
+
+/* ==========================================================================
+   In-gym session logger
+   ========================================================================== */
+
+.session-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-2);
+}
+.session-head h1 { font-size: var(--step-3); text-transform: uppercase; letter-spacing: 0.01em; }
+.session-head__meta { font-family: var(--data); font-size: var(--step--1); color: var(--dim); }
+
+/* Session progress as filled/empty collars, not a percentage bar: a lifter
+   counts exercises done, not a fraction. */
+.pips { display: flex; gap: 5px; align-items: center; }
+.pips__pip {
+    inline-size: 9px; block-size: 9px; border-radius: 50%;
+    border: 1px solid var(--edge-bright);
+}
+.pips__pip--done { background: var(--yellow); border-color: var(--yellow); }
+
+/* --- Exercise card ------------------------------------------------------- */
+
+.lift {
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    padding: var(--gap-3);
+    margin-block-end: var(--gap-3);
+}
+
+.lift__head { display: flex; gap: var(--gap-2); align-items: baseline; }
+
+/* Order index. Earns its place: the plan is a sequence and the lifter works
+   down it in order, so the number is information. */
+.lift__index {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dimmer);
+    padding-block-start: 0.35rem;
+}
+
+.lift__name { font-size: var(--step-2); }
+.lift__prescription { font-family: var(--data); font-size: var(--step--1); color: var(--dim); margin: 2px 0 0; }
+.lift__demo { font-size: var(--step--1); color: var(--dim); }
+
+/* --- "Last time": the reason this app exists ----------------------------- */
+
+.lasttime {
+    margin-block: var(--gap-3) 0;
+    padding-block-end: var(--gap-1);
+    border-block-end: 1px solid var(--edge);
+}
+.lasttime__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    display: block;
+}
+.lasttime__value {
+    font-family: var(--data);
+    font-size: var(--step-1);
+    color: var(--chalk);
+    font-variant-numeric: tabular-nums;
+}
+.lasttime--empty .lasttime__value { color: var(--dimmer); font-size: var(--step-0); }
+
+/* Progression suggestion. Yellow because it is a claim about weight. */
+.suggestion {
+    display: flex;
+    gap: var(--gap-2);
+    align-items: baseline;
+    margin-block: var(--gap-2) 0;
+    padding: var(--gap-2);
+    background: rgba(255, 206, 31, 0.07);
+    border-inline-start: 2px solid var(--yellow);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: var(--step--1);
+}
+.suggestion__mark { color: var(--yellow); font-family: var(--data); }
+
+/* --- Logged sets: the ruled ledger --------------------------------------- */
+
+.sets { list-style: none; margin: var(--gap-3) 0 0; padding: 0; }
+
+.set {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--gap-2);
+    padding-block: 0.5rem;
+    border-block-end: 1px dashed var(--edge);
+    font-family: var(--data);
+    font-variant-numeric: tabular-nums;
+}
+.set__n { color: var(--dimmer); font-size: var(--step--1); }
+.set__load { font-size: var(--step-1); }
+.set__rpe { color: var(--dim); font-size: var(--step--1); }
+.set__tag {
+    font-size: var(--step--1);
+    color: var(--dimmer);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.set__pr {
+    color: #16181c;
+    background: var(--yellow);
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: var(--step--1);
+    padding: 1px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.set--warmup .set__load { color: var(--dim); }
+
+@media (prefers-reduced-motion: no-preference) {
+    .set { animation: set-in 260ms ease-out; }
+    @keyframes set-in {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: none; }
+    }
+}
+
+.set__undo {
+    background: none;
+    border: 0;
+    color: var(--dimmer);
+    font-family: var(--data);
+    font-size: var(--step--1);
+    cursor: pointer;
+    padding: 4px 6px;
+}
+.set__undo:hover { color: var(--alert); }
+
+/* --- Entry row ----------------------------------------------------------- */
+
+.entry { margin-block-start: var(--gap-3); }
+
+.entry__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-2);
+}
+.entry__fields--three { grid-template-columns: 1fr 1fr 0.8fr; }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+}
+.field__input {
+    font-family: var(--data);
+    font-size: var(--step-2);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--chalk);
+    background: var(--iron);
+    border: 1px solid var(--edge-bright);
+    border-radius: var(--radius-sm);
+    min-block-size: var(--touch);
+    inline-size: 100%;
+    padding-inline: 0.25rem;
+}
+.field__input:focus { border-color: var(--yellow); outline: none; }
+/* Spinners waste width that the numerals need. */
+.field__input::-webkit-outer-spin-button,
+.field__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.field__input[type='number'] { -moz-appearance: textfield; }
+
+.warmup {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    margin-block-start: var(--gap-2);
+    font-size: var(--step--1);
+    color: var(--dim);
+}
+.warmup input { inline-size: 1.15rem; block-size: 1.15rem; accent-color: var(--yellow); }
+
+/* --- SIGNATURE: plate math ----------------------------------------------- */
+/* Chip width scales with plate weight, because bigger plates really are
+   bigger. Size carries the information, so no rainbow of plate colours is
+   needed and the palette stays disciplined. */
+
+.plates {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-block-start: var(--gap-2);
+    font-family: var(--data);
+    font-size: var(--step--1);
+}
+.plates__label { color: var(--dimmer); letter-spacing: 0.1em; text-transform: uppercase; }
+.plates__bar {
+    color: var(--dim);
+    border: 1px dashed var(--edge-bright);
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+.plates__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--plate);
+    border: 1px solid var(--edge-bright);
+    border-radius: 3px;
+    color: var(--chalk);
+    font-variant-numeric: tabular-nums;
+    padding-inline: 6px;
+}
+.plates__chip[data-size='xl'] { block-size: 2.1rem; }
+.plates__chip[data-size='l']  { block-size: 1.8rem; }
+.plates__chip[data-size='m']  { block-size: 1.5rem; }
+.plates__chip[data-size='s']  { block-size: 1.2rem; color: var(--dim); }
+.plates__remainder { color: var(--alert); }
+
+/* --- Rest timer: pinned, thumb-height ------------------------------------ */
+
+.rest {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 30;
+    background: var(--iron-raised);
+    border-block-start: 1px solid var(--edge-bright);
+    padding: var(--gap-2) var(--gap-3);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-3);
+}
+.rest[hidden] { display: none; }
+.rest__track { flex: 1; block-size: 3px; background: var(--edge); border-radius: 999px; overflow: hidden; }
+.rest__fill { display: block; block-size: 100%; background: var(--yellow); inline-size: 100%; }
+@media (prefers-reduced-motion: no-preference) {
+    .rest__fill { transition: inline-size 1s linear; }
+}
+.rest__clock {
+    font-family: var(--data);
+    font-size: var(--step-2);
+    font-variant-numeric: tabular-nums;
+    color: var(--yellow);
+    min-inline-size: 4ch;
+}
+.rest__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+}
+.rest--done .rest__clock { color: var(--chalk); }
+
+/* Keep the finish button clear of the pinned rest bar. */
+.session-foot { padding-block-end: 5rem; }
+
+.finish {
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    padding: var(--gap-3);
+}
+.finish label { display: block; font-family: var(--data); font-size: var(--step--1);
+                text-transform: uppercase; letter-spacing: 0.1em; color: var(--dimmer); }
+.finish input, .finish textarea {
+    font-family: var(--body);
+    font-size: var(--step-0);
+    color: var(--chalk);
+    background: var(--iron);
+    border: 1px solid var(--edge-bright);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    inline-size: 100%;
+    margin-block: 4px var(--gap-2);
+}
+.finish p { margin: 0 0 var(--gap-2); }
+
+/* ==========================================================================
+   Coach dashboard — the triage board
+   ========================================================================== */
+
+.board-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-4);
+    padding-block-end: var(--gap-3);
+    border-block-end: 1px solid var(--edge);
+}
+.board-head h1 { font-size: var(--step-4); text-transform: uppercase; }
+.board-head__count {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+}
+.board-head__count b { color: var(--chalk); font-weight: 500; }
+
+/* Queue group. The inline-start rule encodes urgency: yellow = act today,
+   coral = already late, grey = informational only. */
+.queue { margin-block-end: var(--gap-4); }
+
+.queue__head {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    margin-block-end: var(--gap-2);
+}
+.queue__title {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+.queue__n {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dimmer);
+    font-variant-numeric: tabular-nums;
+}
+.queue__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+
+.item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--gap-3);
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-inline-start: 3px solid var(--edge-bright);
+    padding: var(--gap-2) var(--gap-3);
+}
+.item--act  { border-inline-start-color: var(--yellow); }
+.item--late { border-inline-start-color: var(--alert); }
+
+.item__who { font-weight: 600; }
+.item__what { font-family: var(--data); font-size: var(--step--1); color: var(--dim); margin: 2px 0 0; }
+.item__when { color: var(--dimmer); }
+.item__when--late { color: var(--alert); }
+.item__actions { display: flex; gap: var(--gap-2); align-items: center; flex-wrap: wrap; }
+
+/* Empty state as invitation, not decoration. */
+.allclear {
+    text-align: center;
+    padding: var(--gap-5) var(--gap-3);
+    border: 1px dashed var(--edge-bright);
+    border-radius: var(--radius);
+}
+.allclear h2 { font-size: var(--step-3); }
+.allclear p { color: var(--dim); margin-block: var(--gap-2) 0; }
+
+.quiet { color: var(--dim); font-size: var(--step--1); }
+
+.shortcuts { display: flex; flex-wrap: wrap; gap: var(--gap-2); }
+.shortcuts a {
+    font-size: var(--step--1);
+    color: var(--dim);
+    text-decoration: none;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+}
+.shortcuts a:hover { color: var(--chalk); border-color: var(--edge-bright); }
+
+/* ==========================================================================
+   Progress: measurements, and the photos a coach judges change from
+   ========================================================================== */
+
+.page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-3);
+    padding-block-end: var(--gap-3);
+    border-block-end: 1px solid var(--edge);
+}
+.page-head h1 { font-size: var(--step-3); text-transform: uppercase; }
+.page-head__actions { display: flex; gap: var(--gap-2); flex-wrap: wrap; }
+
+/* Headline metrics. Mono numerals so a column of them lines up. */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 1px;
+    margin-block-end: var(--gap-4);
+    background: var(--edge);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+.stat { background: var(--iron-raised); padding: var(--gap-3); }
+.stat__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    display: block;
+}
+.stat__value {
+    font-family: var(--display);
+    font-size: var(--step-2);
+    font-variant-numeric: tabular-nums;
+    display: block;
+    margin-block-start: 2px;
+}
+.stat__delta { font-family: var(--data); font-size: var(--step--1); color: var(--dim); }
+.stat__delta--down { color: var(--yellow); }
+.stat__delta--up   { color: var(--alert); }
+
+.panel {
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    padding: var(--gap-3);
+    margin-block-end: var(--gap-3);
+}
+.panel__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--gap-2);
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-2);
+}
+.panel h2 { font-size: var(--step-1); }
+
+/* --- Photo grid ---------------------------------------------------------- */
+
+.shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: var(--gap-2);
+}
+
+.shot {
+    position: relative;
+    display: block;
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--iron);
+}
+.shot img {
+    display: block;
+    inline-size: 100%;
+    /* Consistent crop so a row of photos reads as a set, not a ransom note. */
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+}
+.shot__caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gap-1);
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dim);
+    padding: 5px 7px;
+    border-block-start: 1px solid var(--edge);
+}
+.shot__shared {
+    color: var(--yellow);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* --- Then / now comparison ---------------------------------------------- */
+
+.compare { margin-block-end: var(--gap-4); }
+.compare__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--gap-2);
+    margin-block-end: var(--gap-2);
+}
+.compare__pose {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+.compare__span { font-family: var(--data); font-size: var(--step--1); color: var(--dimmer); }
+
+.compare__pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-2);
+}
+.compare__slot { position: relative; }
+.compare__slot img {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-sm);
+}
+/* "Then" is the baseline, so it sits quieter than "now". */
+.compare__slot--then img { opacity: 0.72; }
+.compare__slot:hover img { opacity: 1; }
+.compare__tag {
+    position: absolute;
+    inset-block-start: 7px;
+    inset-inline-start: 7px;
+    font-family: var(--data);
+    font-size: 0.68rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    background: rgba(12, 14, 17, 0.82);
+    color: var(--chalk);
+    padding: 3px 7px;
+    border-radius: 3px;
+}
+.compare__tag--now { background: var(--yellow); color: #16181c; }
+.compare__date {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dimmer);
+    margin-block-start: 4px;
+}
+.compare__missing {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 4;
+    border: 1px dashed var(--edge-bright);
+    border-radius: var(--radius-sm);
+    color: var(--dimmer);
+    font-size: var(--step--1);
+    text-align: center;
+    padding: var(--gap-2);
+}
+
+/* --- Photo upload slots ------------------------------------------------- */
+
+.slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--gap-2);
+}
+.slot {
+    border: 1px dashed var(--edge-bright);
+    border-radius: var(--radius-sm);
+    padding: var(--gap-2);
+    background: var(--iron);
+}
+.slot__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: block;
+    margin-block-end: var(--gap-1);
+}
+.slot input[type='file'] {
+    inline-size: 100%;
+    font-size: var(--step--1);
+    color: var(--dim);
+}
+.slot__ref { margin-block-start: var(--gap-2); }
+.slot__ref img {
+    inline-size: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 3px;
+    opacity: 0.5;
+}
+.slot__hint { font-family: var(--data); font-size: 0.68rem; color: var(--dimmer); }
+
+/* --- Generic form styling ----------------------------------------------- */
+
+.form-stack p { margin: 0 0 var(--gap-2); }
+.form-stack label {
+    display: block;
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    margin-block-end: 3px;
+}
+.form-stack input:not([type='checkbox']):not([type='file']),
+.form-stack select,
+.form-stack textarea {
+    font-family: var(--body);
+    font-size: var(--step-0);
+    color: var(--chalk);
+    background: var(--iron);
+    border: 1px solid var(--edge-bright);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.6rem;
+    inline-size: 100%;
+    min-block-size: 2.6rem;
+}
+.form-stack textarea { min-block-size: 5rem; line-height: 1.5; }
+.form-stack input:focus, .form-stack select:focus, .form-stack textarea:focus {
+    border-color: var(--yellow);
+    outline: none;
+}
+.form-stack .helptext {
+    display: block;
+    font-family: var(--body);
+    font-size: var(--step--1);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--dimmer);
+    margin-block-start: 3px;
+}
+.form-stack ul.errorlist {
+    list-style: none;
+    margin: 0 0 var(--gap-1);
+    padding: 0;
+    color: var(--alert);
+    font-size: var(--step--1);
+}
+.form-actions { display: flex; gap: var(--gap-2); align-items: center; margin-block-start: var(--gap-3); }
+
+.consent {
+    display: flex;
+    gap: var(--gap-2);
+    align-items: flex-start;
+    border-inline-start: 2px solid var(--edge-bright);
+    padding: var(--gap-2);
+    background: var(--iron);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.consent input { inline-size: 1.15rem; block-size: 1.15rem; accent-color: var(--yellow); margin-block-start: 2px; }
+.consent label { font-family: var(--body); text-transform: none; letter-spacing: 0; color: var(--chalk); }
+
+/* --- Ratings, tables ---------------------------------------------------- */
+
+.ratings { display: flex; gap: var(--gap-4); flex-wrap: wrap; margin-block: var(--gap-2); }
+.rating__label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    display: block;
+}
+.rating__stars { color: var(--yellow); font-size: var(--step-1); letter-spacing: 2px; }
+
+.data-table { inline-size: 100%; border-collapse: collapse; font-family: var(--data); font-size: var(--step--1); }
+.data-table th, .data-table td {
+    text-align: start;
+    padding: 0.45rem 0.55rem;
+    border-block-end: 1px solid var(--edge);
+    font-variant-numeric: tabular-nums;
+}
+.data-table th { color: var(--dimmer); font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; }
+.data-table tbody tr:hover { background: var(--iron); }
+
+.quote {
+    border-inline-start: 2px solid var(--yellow);
+    padding: var(--gap-2) var(--gap-3);
+    background: var(--iron);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin: 0;
+}
+.quote p { margin: 0; }
+
+@media (min-width: 46rem) {
+    .compare__pair { max-inline-size: 34rem; }
+}
+
+/* ==========================================================================
+   Shared components for the rest of the app
+   ========================================================================== */
+
+/* --- Auth: login and register -------------------------------------------- */
+
+.auth { max-inline-size: 22rem; margin-inline: auto; padding-block-start: var(--gap-5); }
+.auth__mark {
+    font-family: var(--display);
+    font-size: var(--step-2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0;
+}
+.auth__mark::after {
+    content: '';
+    display: inline-block;
+    inline-size: 7px; block-size: 7px;
+    border-radius: 50%;
+    background: var(--yellow);
+    margin-inline-start: 6px;
+    vertical-align: 3px;
+}
+.auth__tagline { color: var(--dim); font-size: var(--step--1); margin: var(--gap-1) 0 var(--gap-4); }
+.auth__alt { color: var(--dim); font-size: var(--step--1); margin-block-start: var(--gap-3); }
+
+/* --- Status pills --------------------------------------------------------- */
+
+.badge {
+    display: inline-block;
+    font-family: var(--data);
+    font-size: 0.68rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--edge-bright);
+    color: var(--dim);
+    white-space: nowrap;
+}
+.badge--live { background: var(--yellow); border-color: var(--yellow); color: #16181c; }
+.badge--late { border-color: var(--alert); color: var(--alert); }
+.badge--ok   { border-color: var(--edge-bright); color: var(--chalk); }
+
+/* --- Card grid: plan days, packages, catalogue ---------------------------- */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--gap-2);
+}
+.card {
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    padding: var(--gap-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2);
+}
+.card__title { font-family: var(--display); font-size: var(--step-1); margin: 0; }
+.card__meta { font-family: var(--data); font-size: var(--step--1); color: var(--dim); margin: 0; }
+.card__body { flex: 1; }
+.card__foot { display: flex; gap: var(--gap-2); flex-wrap: wrap; }
+
+/* A day card leads with its ordinal, matching the session logger. */
+.card--day .card__index {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    color: var(--dimmer);
+}
+
+/* --- Plain lists ---------------------------------------------------------- */
+
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li {
+    padding-block: 0.55rem;
+    border-block-end: 1px dashed var(--edge);
+    display: flex;
+    gap: var(--gap-2);
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+.list > li:last-child { border-block-end: 0; }
+.list__lead { font-weight: 600; }
+.list__meta { font-family: var(--data); font-size: var(--step--1); color: var(--dim); }
+
+/* --- Nutrition ------------------------------------------------------------ */
+
+/* Macro readout. Mono and tabular so a column of meals lines up. */
+.macros {
+    display: flex;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    font-family: var(--data);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+}
+.macros__kcal { color: var(--chalk); font-size: var(--step-1); }
+.macros b { color: var(--chalk); font-weight: 500; }
+
+.meal {
+    border-block-end: 1px solid var(--edge);
+    padding-block: var(--gap-2);
+}
+.meal:last-child { border-block-end: 0; }
+.meal__head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-2);
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+.meal__name { font-family: var(--display); font-size: var(--step-1); margin: 0; }
+.meal__alt {
+    margin-block-start: var(--gap-2);
+    padding-inline-start: var(--gap-3);
+    border-inline-start: 2px solid var(--edge);
+}
+.meal__alt-label {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+}
+
+/* Target comparison: only the misses are coloured. */
+.target__row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--gap-2);
+    align-items: baseline;
+    padding-block: 0.4rem;
+    border-block-end: 1px dashed var(--edge);
+    font-family: var(--data);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+}
+.target__label { color: var(--dim); }
+.target__diff { color: var(--dimmer); }
+.target__diff--off { color: var(--alert); }
+
+/* --- Filter bar ---------------------------------------------------------- */
+
+.filters {
+    display: flex;
+    gap: var(--gap-2);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-3);
+}
+.filters .field { flex: 1 1 8rem; }
+.filters input, .filters select {
+    font-family: var(--body);
+    font-size: var(--step-0);
+    color: var(--chalk);
+    background: var(--iron-raised);
+    border: 1px solid var(--edge-bright);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.55rem;
+    inline-size: 100%;
+    min-block-size: 2.5rem;
+}
+.filters input:focus, .filters select:focus { border-color: var(--yellow); outline: none; }
+
+/* --- Formsets ------------------------------------------------------------ */
+
+/* Each repeated row gets a hairline so a long formset stays readable. */
+.formset__row {
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-sm);
+    padding: var(--gap-2) var(--gap-3);
+    margin-block-end: var(--gap-2);
+    background: var(--iron);
+}
+.formset__row p { margin: 0 0 var(--gap-2); }
+.formset__row p:last-child { margin-block-end: 0; }
+
+/* --- Session history ----------------------------------------------------- */
+
+.session-card {
+    background: var(--iron-raised);
+    border: 1px solid var(--edge);
+    border-inline-start: 3px solid var(--edge-bright);
+    border-radius: var(--radius);
+    padding: var(--gap-3);
+    margin-block-end: var(--gap-2);
+}
+.session-card--open { border-inline-start-color: var(--yellow); }
+.session-card__head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-2);
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-block-end: var(--gap-2);
+}
+.session-card__date { font-family: var(--display); font-size: var(--step-1); }
+
+/* Compact set list inside a history card. */
+.set-line {
+    font-family: var(--data);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    display: flex;
+    gap: var(--gap-2);
+    padding-block: 2px;
+}
+.set-line__name { color: var(--chalk); min-inline-size: 11rem; }
+
+/* --- Print: plans a client actually takes to the gym --------------------- */
+
+@media print {
+    /* Ink on paper, not chalk on iron. */
+    :root { --iron: #fff; --iron-raised: #fff; --chalk: #111; --dim: #555;
+            --dimmer: #666; --edge: #ccc; --edge-bright: #999; }
+    body { background: #fff; color: #111; }
+    .topbar, .flash, .no-print, .rest { display: none !important; }
+    .shell { max-width: none; padding: 0; }
+    .panel, .card, .lift { border-color: #ccc; break-inside: avoid; }
+    a { text-decoration: none; color: #111; }
+}
+
+/* --- Wider screens ------------------------------------------------------- */
+
+@media (min-width: 46rem) {
+    .shell { padding-inline: var(--gap-4); }
+    .entry__fields--three { grid-template-columns: 1fr 1fr 1fr; }
+    .lift { padding: var(--gap-4); }
+    .board-head h1 { font-size: var(--step-5); }
+}

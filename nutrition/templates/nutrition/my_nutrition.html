@@ -1,27 +1,141 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>خطتي الغذائية</title>
-</head>
-<body>
-    <h1>خطط التغذية بتاعتي</h1>
+{% extends "base.html" %}
+{% load i18n gym_extras %}
 
-    {% for plan in plans %}
-        <h2>{{ plan.title }}</h2>
-        <ul>
-            {% for meal in plan.meals.all %}
-                <li>
-                    {{ meal.name }} — {{ meal.calories }} kcal
-                    (P: {{ meal.protein }}g, C: {{ meal.carbs }}g, F: {{ meal.fats }}g)
-                    {% if meal.notes %} — {{ meal.notes }}{% endif %}
-                </li>
-            {% empty %}
-                <li>لا يوجد وجبات في الخطة دي لسه</li>
+{% block title %}{% translate "Nutrition" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Nutrition" %}</h1>
+</div>
+
+{% for row in plan_rows %}
+    <div class="page-head">
+        <h2 style="font-size:var(--step-2)">{{ row.plan.title }}</h2>
+        <div class="page-head__actions">
+            <a class="btn btn--ghost" href="{% url 'nutrition-plan-print' row.plan.pk %}">{% translate "Print" %}</a>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat__label">{% translate "Calories" %}</span>
+            <span class="stat__value">{{ row.totals.calories }}</span>
+            {% if row.plan.macro_target %}
+                <span class="stat__delta">
+                    {% blocktranslate with t=row.plan.macro_target.target_calories %}target {{ t }}{% endblocktranslate %}
+                </span>
+            {% endif %}
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Protein" %}</span>
+            <span class="stat__value">{{ row.totals.protein }}<small> g</small></span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Carbs" %}</span>
+            <span class="stat__value">{{ row.totals.carbs }}<small> g</small></span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Fats" %}</span>
+            <span class="stat__value">{{ row.totals.fats }}<small> g</small></span>
+        </div>
+    </div>
+
+    {% if row.comparison %}
+        <div class="panel">
+            <div class="panel__head">
+                <h3>{% translate "Against your target" %}</h3>
+                {% if row.comparison.any_off_target %}
+                    <span class="badge badge--late">{% translate "off target" %}</span>
+                {% else %}
+                    <span class="badge badge--ok">{% translate "on target" %}</span>
+                {% endif %}
+            </div>
+            {% for line in row.comparison.rows %}
+                <div class="target__row">
+                    <span class="target__label">{{ line.label }}</span>
+                    <span>{{ line.actual }} / {{ line.target }}</span>
+                    <span class="target__diff {% if line.off_target %}target__diff--off{% endif %}">
+                        {% if line.difference > 0 %}+{% endif %}{{ line.difference }}
+                    </span>
+                </div>
             {% endfor %}
-        </ul>
-    {% empty %}
-        <p>لسه معندكش خطة تغذية. تواصل مع مدربك.</p>
-    {% endfor %}
-</body>
-</html>
+        </div>
+    {% endif %}
+
+    <div class="panel">
+        <div class="panel__head"><h3>{% translate "Meals" %}</h3></div>
+        {% for meal in row.meals %}
+            <div class="meal">
+                <div class="meal__head">
+                    <h4 class="meal__name">{{ meal.name }}</h4>
+                    <div class="macros">
+                        <span class="macros__kcal">{{ meal.calories }} kcal</span>
+                        <span>P <b>{{ meal.protein }}</b></span>
+                        <span>C <b>{{ meal.carbs }}</b></span>
+                        <span>F <b>{{ meal.fats }}</b></span>
+                    </div>
+                </div>
+
+                {% if meal.food_items.all %}
+                    <ul class="list">
+                        {% for item in meal.food_items.all %}
+                            <li>
+                                <span>{{ item.food.name }}</span>
+                                <span class="list__meta">{{ item.grams }} g</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if meal.notes %}<p class="quiet">{{ meal.notes }}</p>{% endif %}
+
+                {% for alternative in meal.alternatives.all %}
+                    <div class="meal__alt">
+                        <span class="meal__alt-label">{% translate "or" %}</span>
+                        <div class="meal__head">
+                            <span class="list__lead">{{ alternative.name }}</span>
+                            <div class="macros">
+                                <span>{{ alternative.calories }} kcal</span>
+                                <span>P <b>{{ alternative.protein }}</b></span>
+                                <span>C <b>{{ alternative.carbs }}</b></span>
+                                <span>F <b>{{ alternative.fats }}</b></span>
+                            </div>
+                        </div>
+                        {% if alternative.notes %}<p class="quiet">{{ alternative.notes }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% empty %}
+            <p class="quiet">{% translate "No meals in this plan yet." %}</p>
+        {% endfor %}
+    </div>
+
+    {% if row.plan.macro_target.water_ml %}
+        <div class="panel">
+            <div class="panel__head"><h3>{% translate "Water" %}</h3></div>
+            <p class="macros__kcal">
+                {% blocktranslate with ml=row.plan.macro_target.water_ml %}{{ ml }} ml a day{% endblocktranslate %}
+            </p>
+        </div>
+    {% endif %}
+
+    {% if row.plan.supplement_schedule.all %}
+        <div class="panel">
+            <div class="panel__head"><h3>{% translate "Supplements" %}</h3></div>
+            <ul class="list">
+                {% for entry in row.plan.supplement_schedule.all %}
+                    <li>
+                        <span class="list__lead">{{ entry.supplement.name }}</span>
+                        <span class="list__meta">{{ entry.dose }} · {{ entry.get_timing_display }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% empty %}
+    <div class="allclear">
+        <h2>{% translate "No nutrition plan yet" %}</h2>
+        <p>{% translate "Your coach writes this around what you actually eat. Tell them your favourites and what you can't stand." %}</p>
+    </div>
+{% endfor %}
+{% endblock %}

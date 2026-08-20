@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load i18n gym_extras %}
+
+{% block title %}{% translate "Subscription" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "Subscription" %}</h1>
+</div>
+
+{% if current %}
+    <div class="stats">
+        <div class="stat">
+            <span class="stat__label">{% translate "Package" %}</span>
+            <span class="stat__value" style="font-size:var(--step-1)">{{ current.plan.name }}</span>
+            <span class="stat__delta">{% translate "active" %}</span>
+        </div>
+        <div class="stat">
+            <span class="stat__label">{% translate "Days left" %}</span>
+            <span class="stat__value">{{ current.days_remaining }}</span>
+            <span class="stat__delta">
+                {% blocktranslate with d=current.end_date %}until {{ d }}{% endblocktranslate %}
+            </span>
+        </div>
+    </div>
+{% endif %}
+
+{% for subscription in pending %}
+    <section class="queue" aria-label="{% translate 'Awaiting approval' %}">
+        <ul class="queue__list">
+            <li class="item item--act">
+                <div>
+                    <span class="item__who">{{ subscription.plan.name }}</span>
+                    <p class="item__what">
+                        {% if subscription.payment_proofs.all %}
+                            {% translate "Your coach is checking your payment" %}
+                        {% else %}
+                            {% translate "Waiting for your payment details" %}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="item__actions">
+                    <a class="btn btn--primary" href="{% url 'payment-proof-upload' subscription.pk %}">
+                        {% if subscription.payment_proofs.all %}
+                            {% translate "Send again" %}
+                        {% else %}
+                            {% translate "Send payment details" %}
+                        {% endif %}
+                    </a>
+                </div>
+            </li>
+            {% for proof in subscription.payment_proofs.all %}
+                <li class="item {% if proof.status == 'REJECTED' %}item--late{% endif %}">
+                    <div>
+                        <span class="item__who">{{ proof.get_method_display }}</span>
+                        <p class="item__what">
+                            {{ proof.amount_egp|floatformat:"0" }} EGP
+                            {% if proof.reference_number %}· {{ proof.reference_number }}{% endif %}
+                            · {{ proof.submitted_at|date:"j M, H:i" }}
+                        </p>
+                        {% if proof.rejection_reason %}
+                            <p class="item__what item__when--late">{{ proof.rejection_reason }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="item__actions">
+                        {% if proof.status == 'APPROVED' %}
+                            <span class="badge badge--ok">{{ proof.get_status_display }}</span>
+                        {% elif proof.status == 'REJECTED' %}
+                            <span class="badge badge--late">{{ proof.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge">{{ proof.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endfor %}
+
+{% if not current and not pending %}
+    <div class="allclear">
+        <h2>{% translate "No active subscription" %}</h2>
+        <p>{% translate "Pick a package below, then send your transfer details. Your coach approves it and you're in." %}</p>
+    </div>
+{% endif %}
+
+<p class="eyebrow">{% translate "Packages" %}</p>
+<hr class="rule">
+<div class="cards">
+    {% for plan in plans %}
+        <div class="card">
+            <h2 class="card__title">{{ plan.name }}</h2>
+            <p class="card__meta">
+                {{ plan.price_egp|floatformat:"0" }} EGP ·
+                {% blocktranslate count counter=plan.duration_days %}{{ counter }} day{% plural %}{{ counter }} days{% endblocktranslate %}
+            </p>
+            <div class="card__body">
+                {% if plan.description %}<p class="quiet">{{ plan.description }}</p>{% endif %}
+            </div>
+            <div class="card__foot">
+                <a class="btn btn--ghost" href="{% url 'subscription-start' %}">{% translate "Choose" %}</a>
+            </div>
+        </div>
+    {% empty %}
+        <p class="quiet">{% translate "No packages available right now." %}</p>
+    {% endfor %}
+</div>
+
+{% if subscriptions %}
+    <p class="eyebrow">{% translate "History" %}</p>
+    <hr class="rule">
+    <div class="panel">
+        <table class="data-table">
+            <tbody>
+                {% for subscription in subscriptions %}
+                    <tr>
+                        <td>{{ subscription.plan.name }}</td>
+                        <td>{{ subscription.get_status_display }}</td>
+                        <td>
+                            {% if subscription.start_date %}
+                                {{ subscription.start_date }} → {{ subscription.end_date }}
+                            {% else %}—{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

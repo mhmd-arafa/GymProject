@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "New package" %}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>{% translate "New package" %}</h1>
+</div>
+
+<div class="panel">
+    <p class="quiet">{% translate "Duration is in days: 30 for a month, 90 for a quarter." %}</p>
+</div>
+
+<form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="panel">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+    </div>
+    <div class="form-actions">
+        <button class="btn btn--primary" type="submit">{% translate "Save package" %}</button>
+        <a class="btn btn--ghost" href="{% url 'subscription-plan-list' %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}
